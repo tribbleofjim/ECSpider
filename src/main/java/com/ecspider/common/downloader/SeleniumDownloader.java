@@ -6,6 +6,10 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.Downloader;
 
+/**
+ * @author lyifee
+ * on 2020/12/21
+ */
 public class SeleniumDownloader implements Downloader {
     public Page download(Request request, Task task) {
         WebDriver webDriver;

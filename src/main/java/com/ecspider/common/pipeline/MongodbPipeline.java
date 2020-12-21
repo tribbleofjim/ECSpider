@@ -11,6 +11,10 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import javax.annotation.Resource;
 import java.util.Map;
 
+/**
+ * @author lyifee
+ * on 2020/12/21
+ */
 public class MongodbPipeline implements Pipeline {
     Logger LOGGER = LoggerFactory.getLogger(MongodbPipeline.class);
 

@@ -6,6 +6,7 @@ import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author lyifee
  * on 2020/12/21
  */
+@Component
 public class WebDriverPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebDriverPool.class);
 
@@ -37,6 +39,7 @@ public class WebDriverPool {
     private static final String DRIVER_PHANTOMJS = "phantomjs";
 
     static {
+        // TODO : 从配置文件初始化DRIVER_PATH
         caps.setJavascriptEnabled(true);
         caps.setCapability(
                 PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, DRIVER_PATH);
@@ -45,8 +48,7 @@ public class WebDriverPool {
                 PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX
                         + "User-Agent",
                 "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36");
-        caps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
-                "--load-images=no");
+        caps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, "--load-images=no");
     }
 
     public WebDriverPool(int capacity) {

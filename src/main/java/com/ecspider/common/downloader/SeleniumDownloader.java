@@ -26,8 +26,7 @@ public class SeleniumDownloader implements Downloader {
 
     private static final Long SLEEP_MILLIS = 4000L;
 
-    @Resource
-    private WebDriverPool webDriverPool;
+    private WebDriverPool webDriverPool = new WebDriverPool();
 
     public Page download(Request request, Task task) {
         WebDriver webDriver;

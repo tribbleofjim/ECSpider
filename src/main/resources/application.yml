@@ -3,6 +3,6 @@ spring:
     mongodb:
       host: 127.0.0.1
       database: test
-  props:
-    driver:
-      path: phantomjs-2.1.1-macosx/bin/phantomjs
+props:
+  driver:
+    path: /Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver

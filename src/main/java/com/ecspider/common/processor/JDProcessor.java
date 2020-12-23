@@ -1,10 +1,16 @@
 package com.ecspider.common.processor;
 
+import com.ecspider.common.enums.PageItemKeys;
+import com.ecspider.common.model.JDModel;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.selector.Selectable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lyifee
@@ -28,20 +34,32 @@ public class JDProcessor implements PageProcessor {
     public void process(Page page) {
         // TODO : 将下一页链接加入page
         Document document = page.getHtml().getDocument();
-        Elements elements = document.getElementsByClass("gl-item");
-        int pageSize = elements.size();
-
         Elements titles = document.getElementsByClass("p-name p-name-type-2");
         int titlesSize = titles.size();
 
-        for (int i = 0; i < pageSize; i++) {
-            if (i > titlesSize) {
+        Elements prices = document.getElementsByClass("p-price");
+        int pricesSize = prices.size();
+
+        List<JDModel> modelList = new ArrayList<>();
+
+        for (int i = 0; i < titlesSize; i++) {
+            if (i > pricesSize) {
                 break;
             }
-            page.putField("title", titles.get(i).getElementsByTag("em").get(0).text());
-            String rawPrice = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li[" + i + "]/div/div[3]/strong/i").toString();
-            page.putField("price", rawPrice.replace("<i>", ""));
+            JDModel jdModel = new JDModel();
+            jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
+            String price = prices.get(i).getElementsByTag("i").get(0).text();
+            System.out.println(i);
+            System.out.println(price);
+            if (price == null) {
+                System.out.println("price is null");
+                continue;
+            }
+            jdModel.setPrice(price);
+
+            modelList.add(jdModel);
         }
+        page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
     }
 
     public Site getSite() {

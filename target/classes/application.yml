@@ -1,8 +1,0 @@
-spring:
-  data:
-    mongodb:
-      host: 127.0.0.1
-      database: test
-props:
-  driver:
-    path: /Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver

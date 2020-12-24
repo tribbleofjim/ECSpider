@@ -49,11 +49,11 @@ public class JDProcessor implements PageProcessor {
             }
 
         } else {
-            doWithProductPage(page);
+            doWithDetailPage(page);
         }
     }
 
-    private void doWithProductPage(Page page) {
+    private void doWithDetailPage(Page page) {
         Document document = page.getHtml().getDocument();
         Elements elements;
 

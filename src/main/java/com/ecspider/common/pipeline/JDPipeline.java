@@ -1,7 +1,7 @@
 package com.ecspider.common.pipeline;
 
-import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDModel;
+import com.ecspider.common.util.JDModelCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +20,8 @@ import java.util.Map;
 public class JDPipeline implements Pipeline {
     Logger LOGGER = LoggerFactory.getLogger(JDPipeline.class);
 
+    private static final Integer CACHE_CAPACITY = 30;
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -30,7 +31,17 @@ public class JDPipeline implements Pipeline {
             return;
         }
 
-        List<JDModel> modelList = (List<JDModel>) mapResults.get(PageItemKeys.JD_PAGE_KEY.getKey());
-        mongoTemplate.insert(modelList, JDModel.class);
+        JDModel model = new JDModel();
+        model.setTitle(resultItems.get("title"));
+        model.setPrice(resultItems.get("price"));
+        model.setShop(resultItems.get("shop"));
+        model.setSellCount(resultItems.get("sellCount"));
+        model.setCommentList(resultItems.get("commentList"));
+        JDModelCache.add(model);
+        if (JDModelCache.getModelList().size() >= CACHE_CAPACITY) {
+            mongoTemplate.insert(JDModelCache.getModelList(), JDModel.class);
+            JDModelCache.clear();
+        }
+
     }
 }

@@ -39,64 +39,50 @@ public class JDProcessor implements PageProcessor {
             .setUserAgent(USER_AGENT);
 
     public void process(Page page) {
+        if (!page.getUrl().regex("https://item.jd.com/[0-9]+.html").match()) {
+            // list page
+            page.addTargetRequests(page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all());
+
+            String nextPageRequest = getNextPageRequest(page);
+            if (nextPageRequest != null) {
+                page.addTargetRequest(nextPageRequest);
+            }
+
+        } else {
+            doWithProductPage(page);
+        }
+    }
+
+    private void doWithProductPage(Page page) {
         Document document = page.getHtml().getDocument();
-        int minSize = Integer.MAX_VALUE;
-        Elements titles = document.getElementsByClass("p-name p-name-type-2");
-        int titlesSize = titles.size();
-        minSize = Math.min(minSize, titlesSize);
+        Elements elements;
 
-        Elements prices = document.getElementsByClass("p-price");
-        int pricesSize = prices.size();
-        minSize = Math.min(minSize, pricesSize);
-
-        Elements commits = document.getElementsByClass("p-commit");
-        int commitsSize = commits.size();
-        minSize = Math.min(minSize, commitsSize);
-
-        Elements shops = document.getElementsByClass("p-shop");
-        int shopsSize = shops.size();
-        minSize = Math.min(minSize, shopsSize);
-
-        Elements icons = document.getElementsByClass("p-icons");
-        int iconsSize = icons.size();
-        minSize = Math.min(minSize, iconsSize);
-
-        List<JDModel> modelList = new ArrayList<>();
-        int size;
-
-        for (int i = 0; i < minSize; i++) {
-            JDModel jdModel = new JDModel();
-            jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
-            String price = prices.get(i).getElementsByTag("i").get(0).text();
-            jdModel.setPrice(price);
-
-            int s = commits.get(i).getElementsByTag("a").size();
-            String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
-                    commits.get(i).getElementsByTag("a").get(0).text();
-            jdModel.setCommit(commit);
-            System.out.println(jdModel.getCommit());
-
-            if (shops.get(i).getElementsByTag("a").size() > 0) {
-                jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
-                System.out.println(jdModel.getShop());
-            }
-
-            Elements tempIcons = icons.get(i).getElementsByTag("i");
-            StringBuilder builder = new StringBuilder();
-            for (Element tempIcon : tempIcons) {
-                builder.append(tempIcon.text()).append(" ");
-            }
-            jdModel.setIcon(builder.toString());
-            System.out.println(jdModel.getIcon());
-
-            modelList.add(jdModel);
+        elements = document.getElementsByClass("sku-name");
+        if (elements != null && elements.size() != 0) {
+            page.putField("title", elements.get(0).text());
         }
-        page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
 
-        String nextPageRequest = getNextPageRequest(page);
-        if (nextPageRequest != null) {
-            page.addTargetRequest(nextPageRequest);
+        elements = document.getElementsByClass("p-price");
+        if (elements != null && elements.size() != 0) {
+            Elements prices = elements.get(0).getElementsByTag("span");
+            if (prices != null && prices.size() != 0)
+            page.putField("price", prices.get(1).text());
         }
+
+        page.putField("shop", page.getHtml().xpath("//*[@id=\"popbox\"]/div/div[1]/h3/a/text()"));
+
+        Element commentCount = document.getElementById("comment-count");
+        if (commentCount != null) {
+            page.putField("sellCount", commentCount.getElementsByTag("a").get(0).text());
+        }
+
+        Elements comments = document.getElementsByClass("comment-con");
+        List<String> commentList = new ArrayList<>();
+        for (Element comment : comments) {
+            commentList.add(comment.text());
+        }
+        page.putField("commentList", commentList);
+
     }
 
     private String getNextPageRequest(Page page) {
@@ -105,7 +91,7 @@ public class JDProcessor implements PageProcessor {
         System.out.println("url=" + url);
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
-        Integer nextPage = Integer.parseInt(params.get("page")) + 2;
+        int nextPage = Integer.parseInt(params.get("page")) + 2;
         if (nextPage > 110) {
             return null;
         }

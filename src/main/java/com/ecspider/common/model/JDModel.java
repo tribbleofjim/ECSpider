@@ -3,6 +3,8 @@ package com.ecspider.common.model;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.List;
+
 /**
  * @author lyifee
  * on 2020/12/23
@@ -15,23 +17,23 @@ public class JDModel {
     @Field("price")
     private String price;
 
-    @Field("commit")
-    private String commit;
-
     @Field("shop")
     private String shop;
 
-    @Field("icon")
-    private String icon;
+    @Field("sellCount")
+    private String sellCount;
+
+    @Field("commentList")
+    private List<String> commentList;
 
     @Override
     public String toString() {
         return "JDModel{" +
                 "title='" + title + '\'' +
                 ", price='" + price + '\'' +
-                ", commit='" + commit + '\'' +
                 ", shop='" + shop + '\'' +
-                ", icon='" + icon + '\'' +
+                ", sellCount='" + sellCount + '\'' +
+                ", commentList=" + commentList +
                 '}';
     }
 
@@ -51,14 +53,6 @@ public class JDModel {
         this.price = price;
     }
 
-    public String getCommit() {
-        return commit;
-    }
-
-    public void setCommit(String commit) {
-        this.commit = commit;
-    }
-
     public String getShop() {
         return shop;
     }
@@ -67,11 +61,19 @@ public class JDModel {
         this.shop = shop;
     }
 
-    public String getIcon() {
-        return icon;
+    public String getSellCount() {
+        return sellCount;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon;
+    public void setSellCount(String sellCount) {
+        this.sellCount = sellCount;
+    }
+
+    public List<String> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<String> commentList) {
+        this.commentList = commentList;
     }
 }

@@ -4,6 +4,7 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,44 +40,78 @@ public class JDProcessor implements PageProcessor {
 
     public void process(Page page) {
         Document document = page.getHtml().getDocument();
+        int minSize = Integer.MAX_VALUE;
         Elements titles = document.getElementsByClass("p-name p-name-type-2");
         int titlesSize = titles.size();
+        minSize = Math.min(minSize, titlesSize);
 
         Elements prices = document.getElementsByClass("p-price");
         int pricesSize = prices.size();
+        minSize = Math.min(minSize, pricesSize);
+
+        Elements commits = document.getElementsByClass("p-commit");
+        int commitsSize = commits.size();
+        minSize = Math.min(minSize, commitsSize);
+
+        Elements shops = document.getElementsByClass("p-shop");
+        int shopsSize = shops.size();
+        minSize = Math.min(minSize, shopsSize);
+
+        Elements icons = document.getElementsByClass("p-icons");
+        int iconsSize = icons.size();
+        minSize = Math.min(minSize, iconsSize);
 
         List<JDModel> modelList = new ArrayList<>();
+        int size;
 
-        for (int i = 0; i < titlesSize; i++) {
-            if (i > pricesSize) {
-                break;
-            }
-
+        for (int i = 0; i < minSize; i++) {
             JDModel jdModel = new JDModel();
             jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
             String price = prices.get(i).getElementsByTag("i").get(0).text();
-            if (price == null) {
-                LOGGER.warn("jd_spider_processor_excption:price is null");
-                continue;
-            }
             jdModel.setPrice(price);
+
+            int s = commits.get(i).getElementsByTag("a").size();
+            String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
+                    commits.get(i).getElementsByTag("a").get(0).text();
+            jdModel.setCommit(commit);
+            System.out.println(jdModel.getCommit());
+
+            if (shops.get(i).getElementsByTag("a").size() > 0) {
+                jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
+                System.out.println(jdModel.getShop());
+            }
+
+            Elements tempIcons = icons.get(i).getElementsByTag("i");
+            StringBuilder builder = new StringBuilder();
+            for (Element tempIcon : tempIcons) {
+                builder.append(tempIcon.text()).append(" ");
+            }
+            jdModel.setIcon(builder.toString());
+            System.out.println(jdModel.getIcon());
 
             modelList.add(jdModel);
         }
         page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
 
-        page.addTargetRequest(getNextPageRequest(page));
+        String nextPageRequest = getNextPageRequest(page);
+        if (nextPageRequest != null) {
+            page.addTargetRequest(nextPageRequest);
+        }
     }
 
-    public String getNextPageRequest(Page page) {
+    private String getNextPageRequest(Page page) {
         Selectable rawUrl = page.getUrl();
         String url = rawUrl.get();
+        System.out.println("url=" + url);
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
         Integer nextPage = Integer.parseInt(params.get("page")) + 2;
+        if (nextPage > 110) {
+            return null;
+        }
         Integer nextStart = Integer.parseInt(params.get("s")) + 60;
-        UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
-        UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+        url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
+        url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
         return url;
     }
 

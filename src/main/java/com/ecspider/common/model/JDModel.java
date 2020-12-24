@@ -15,11 +15,23 @@ public class JDModel {
     @Field("price")
     private String price;
 
+    @Field("commit")
+    private String commit;
+
+    @Field("shop")
+    private String shop;
+
+    @Field("icon")
+    private String icon;
+
     @Override
     public String toString() {
         return "JDModel{" +
                 "title='" + title + '\'' +
                 ", price='" + price + '\'' +
+                ", commit='" + commit + '\'' +
+                ", shop='" + shop + '\'' +
+                ", icon='" + icon + '\'' +
                 '}';
     }
 
@@ -37,5 +49,29 @@ public class JDModel {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
+    public String getShop() {
+        return shop;
+    }
+
+    public void setShop(String shop) {
+        this.shop = shop;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

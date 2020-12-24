@@ -2,10 +2,7 @@ package com.ecspider.common.downloader;
 
 import com.ecspider.common.model.SeleniumAction;
 import com.ecspider.common.util.WebDriverPool;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
@@ -56,7 +53,9 @@ public class SeleniumDownloader implements Downloader {
             }
         }
 
+        // page execution
         manager.window().maximize();
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollTo(0,document.body.scrollHeight)");
 
         // do action
         SeleniumAction reqAction=(SeleniumAction) request.getExtra("action");

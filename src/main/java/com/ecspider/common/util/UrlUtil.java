@@ -1,11 +1,8 @@
 package com.ecspider.common.util;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +26,7 @@ public class UrlUtil {
             if (StringUtils.isBlank(param)) {
                 continue;
             }
-            String[] keyValue = param.split(":");
+            String[] keyValue = param.split("=");
             map.put(keyValue[0], keyValue[1]);
         }
         return map;
@@ -79,7 +76,7 @@ public class UrlUtil {
     }
 
     private static String getParamByKeyValue(String key, String value) {
-        return key + ":" + value;
+        return key + "=" + value;
     }
 
 }

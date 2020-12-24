@@ -3,11 +3,14 @@ package com.ecspider.common;
 import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
+import com.ecspider.common.util.UrlUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
+
+import java.util.Map;
 
 /**
  * @author lyifee
@@ -21,11 +24,23 @@ public class JDSpiderTest {
     @Test
     public void jdProcessTest() {
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=5&s=57&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=3&s=56&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
                 .thread(1)
                 .run();
+    }
+
+    @Test
+    public void urlUtilTest() {
+        String url = "https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=2&s=61&click=0";
+        Map<String, String> params = UrlUtil.getUrlParams(url);
+        assert params != null;
+        Integer nextPage = Integer.parseInt(params.get("page")) + 2;
+        Integer nextStart = Integer.parseInt(params.get("s")) + 60;
+        url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
+        url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+        System.out.println(url);
     }
 }

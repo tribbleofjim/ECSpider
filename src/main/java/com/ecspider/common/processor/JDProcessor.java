@@ -2,6 +2,7 @@ package com.ecspider.common.processor;
 
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.util.UrlUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,14 +28,17 @@ import java.util.Map;
 public class JDProcessor implements PageProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JDProcessor.class);
 
-    private static final Integer RETRY_TIMES = 3;
+    private static final int RETRY_TIMES = 3;
 
-    private static final Integer SLEEP_TIME_MILLIS = 5000;
+    private static final int SLEEP_TIME_MILLIS = 5000;
 
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) " +
             "AppleWebKit/537.31 (KHTML, like Gecko) " +
             "Chrome/26.0.1410.65 " +
             "Safari/537.31";
+
+    private static final String COMMENT_URL = "https://club.jd.com/comment/productPageComments.action?" +
+            "callback=fetchJSON_comment98&productId=100009082466&score=3&sortType=6&page=0&pageSize=10&isShadowSku=0&fold=1";
 
     private Site site = Site.me()
             .setRetryTimes(RETRY_TIMES)
@@ -76,8 +80,9 @@ public class JDProcessor implements PageProcessor {
             return;
         }
         String skuHref = reportContent.attr("href");
+        String skuId = null;
         if (StringUtils.isNotBlank(skuHref)) {
-            String skuId = UrlUtil.getFromUrl(skuHref, "skuId");
+            skuId = UrlUtil.getFromUrl(skuHref, "skuId");
             if (StringUtils.isNotBlank(skuId)) {
                 page.putField("skuId", skuId);
             }
@@ -114,6 +119,11 @@ public class JDProcessor implements PageProcessor {
         }
         page.putField("commentList", commentList);
 
+        // add comment links
+        List<String> commentTargets = getCommentRequests(skuId);
+        if (CollectionUtils.isNotEmpty(commentTargets)) {
+            page.addTargetRequests(commentTargets);
+        }
     }
 
     private void doWithCommentPage(Page page) {
@@ -158,7 +168,6 @@ public class JDProcessor implements PageProcessor {
     private String getNextPageRequest(Page page) {
         Selectable rawUrl = page.getUrl();
         String url = rawUrl.get();
-        System.out.println("url=" + url);
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
         int nextPage = Integer.parseInt(params.get("page")) + 2;
@@ -169,6 +178,22 @@ public class JDProcessor implements PageProcessor {
         url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
         url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
         return url;
+    }
+
+    private List<String> getCommentRequests(String skuId) {
+        if (StringUtils.isBlank(skuId)) {
+            return null;
+        }
+        String url;
+        List<String> list = new ArrayList<>();
+        url = UrlUtil.addParamToUrl(COMMENT_URL, "productId", skuId);
+        // 京东采用数字标明score，1-3分别代表差评，中评，好评
+        // 当前只爬取一页好评 + 一页中评 + 一页差评，所以page没有做替换
+        for (int i = 1; i <= 3; i++) {
+            String tempUrl = UrlUtil.addParamToUrl(url, "score", String.valueOf(i));
+            list.add(tempUrl);
+        }
+        return list;
     }
 
     public Site getSite() {

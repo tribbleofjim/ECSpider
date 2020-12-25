@@ -24,7 +24,7 @@ public class JDModel {
     private String sellCount;
 
     @Field("commentList")
-    private List<String> commentList;
+    private List<JDComment> commentList;
 
     @Override
     public String toString() {
@@ -69,11 +69,11 @@ public class JDModel {
         this.sellCount = sellCount;
     }
 
-    public List<String> getCommentList() {
+    public List<JDComment> getCommentList() {
         return commentList;
     }
 
-    public void setCommentList(List<String> commentList) {
+    public void setCommentList(List<JDComment> commentList) {
         this.commentList = commentList;
     }
 }

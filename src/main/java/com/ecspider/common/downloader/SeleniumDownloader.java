@@ -54,8 +54,8 @@ public class SeleniumDownloader implements Downloader {
         }
 
         // page execution
-        manager.window().maximize();
         ((JavascriptExecutor) webDriver).executeScript("window.scrollTo(0,document.body.scrollHeight)");
+        manager.window().maximize();
 
         // do action
         SeleniumAction reqAction=(SeleniumAction) request.getExtra("action");

@@ -1,16 +1,19 @@
 package com.ecspider.common.processor;
 
-import com.ecspider.common.enums.PageItemKeys;
-import com.ecspider.common.model.JDModel;
+import com.ecspider.common.model.JDComment;
 import com.ecspider.common.util.UrlUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.selector.Json;
+import us.codecraft.webmagic.selector.JsonPathSelector;
 import us.codecraft.webmagic.selector.Selectable;
 
 import java.util.ArrayList;
@@ -39,23 +42,46 @@ public class JDProcessor implements PageProcessor {
             .setUserAgent(USER_AGENT);
 
     public void process(Page page) {
-        if (!page.getUrl().regex("https://item.jd.com/[0-9]+.html").match()) {
+        if (page.getUrl().regex("https://item.jd.com/[0-9]+.html").match()) {
+            // detail page
+            doWithDetailPage(page);
+
+        } else if (page.getUrl().regex("https://club\\.jd\\.com/comment/.*").match()) {
+            // comment page
+            doWithCommentPage(page);
+        }
+        else {
             // list page
             page.addTargetRequests(page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all());
 
             String nextPageRequest = getNextPageRequest(page);
             if (nextPageRequest != null) {
-                page.addTargetRequest(nextPageRequest);
+                Request request = new Request();
+                request.setUrl(nextPageRequest);
+                page.addTargetRequest(request);
             }
-
-        } else {
-            doWithDetailPage(page);
         }
     }
 
     private void doWithDetailPage(Page page) {
         Document document = page.getHtml().getDocument();
         Elements elements;
+
+        Elements reportBtn = document.getElementsByClass("report-btn");
+        if (reportBtn == null) {
+            return;
+        }
+        Element reportContent = reportBtn.get(0);
+        if (reportContent == null) {
+            return;
+        }
+        String skuHref = reportContent.attr("href");
+        if (StringUtils.isNotBlank(skuHref)) {
+            String skuId = UrlUtil.getFromUrl(skuHref, "skuId");
+            if (StringUtils.isNotBlank(skuId)) {
+                page.putField("skuId", skuId);
+            }
+        }
 
         elements = document.getElementsByClass("sku-name");
         if (elements != null && elements.size() != 0) {
@@ -69,7 +95,12 @@ public class JDProcessor implements PageProcessor {
             page.putField("price", prices.get(1).text());
         }
 
-        page.putField("shop", page.getHtml().xpath("//*[@id=\"popbox\"]/div/div[1]/h3/a/text()"));
+        String shop = null;
+        Elements shops = document.getElementsByClass("item");
+        if (shops != null) {
+            shop = shops.get(0).getElementsByClass("name").get(0).text();
+        }
+        page.putField("shop", shop);
 
         Element commentCount = document.getElementById("comment-count");
         if (commentCount != null) {
@@ -83,6 +114,45 @@ public class JDProcessor implements PageProcessor {
         }
         page.putField("commentList", commentList);
 
+    }
+
+    private void doWithCommentPage(Page page) {
+        Json json = page.getJson();
+        if (json == null) {
+            page.putField("commentList", new ArrayList<JDComment>());
+            return;
+        }
+        String text = json.get();
+        System.out.println(text);
+
+        List<JDComment> commentList = new ArrayList<>();
+        int minSize = Integer.MAX_VALUE;
+        JsonPathSelector contentSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].content");
+        List<String> contents = contentSelector.selectList(text);
+        minSize = Math.min(minSize, contents.size());
+
+        JsonPathSelector scoreSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].score");
+        List<String> scores = scoreSelector.selectList(text);
+        minSize = Math.min(minSize, scores.size());
+
+        JsonPathSelector creationTimeSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].creationTime");
+        List<String> creationTimes = creationTimeSelector.selectList(text);
+        minSize = Math.min(minSize, creationTimes.size());
+
+        JsonPathSelector productSizeSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].productSize");
+        List<String> productSizes = productSizeSelector.selectList(text);
+        minSize = Math.min(minSize, productSizes.size());
+
+        for (int i = 0; i < minSize; i++) {
+            JDComment comment = new JDComment();
+            comment.setContent(contents.get(i));
+            comment.setProductType(productSizes.get(i));
+            comment.setStar(Integer.parseInt(scores.get(i)));
+            comment.setTime(creationTimes.get(i));
+            commentList.add(comment);
+        }
+
+        page.putField("commentList", commentList);
     }
 
     private String getNextPageRequest(Page page) {

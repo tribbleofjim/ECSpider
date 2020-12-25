@@ -43,4 +43,10 @@ public class JDSpiderTest {
         url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
         System.out.println(url);
     }
+
+    @Test
+    public void regexTest() {
+        String url = "https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98&productId=100009082466&score=3&sortType=6&page=1&pageSize=10&isShadowSku=0&fold=1";
+        System.out.println(url.matches("https://club\\.jd\\.com/comment/.*"));
+    }
 }

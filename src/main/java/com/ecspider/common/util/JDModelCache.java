@@ -1,19 +1,44 @@
 package com.ecspider.common.util;
 
+import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author lyifee
  * on 2020/12/24
  */
 public class JDModelCache {
+    private static Map<String, JDModel> modelMap = new ConcurrentHashMap<>();
     private static List<JDModel> modelList = new ArrayList<>();
 
-    public static void add(JDModel model) {
-        modelList.add(model);
+    public static void add(String skuId, JDModel model) {
+        if (StringUtils.isBlank(skuId)) {
+            return;
+        }
+        modelMap.put(skuId, model);
+    }
+
+    public static void addComments(String skuId, List<JDComment> comments) {
+        if (StringUtils.isBlank(skuId)) {
+            return;
+        }
+        JDModel jdModel = modelMap.getOrDefault(skuId, null);
+        if (jdModel == null) {
+            return;
+        }
+        jdModel.setCommentList(comments);
+        modelList.add(jdModel);
+        modelMap.remove(skuId);
+    }
+
+    public static int getTempSize() {
+        return modelList.size();
     }
 
     public static List<JDModel> getModelList() {

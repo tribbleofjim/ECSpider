@@ -27,7 +27,7 @@ public class JDModelCache {
         modelMap.put(skuId, model);
     }
 
-    public static void addComments(String skuId, List<JDComment> comments) {
+    public static void addComments(String skuId, List<JDComment> comments, boolean isEnd) {
         if (StringUtils.isBlank(skuId)) {
             return;
         }
@@ -35,9 +35,16 @@ public class JDModelCache {
         if (jdModel == null) {
             return;
         }
-        jdModel.setCommentList(comments);
-        modelList.add(jdModel);
-        modelMap.remove(skuId);
+        if (jdModel.getCommentList() == null) {
+            jdModel.setCommentList(comments);
+
+        } else {
+            jdModel.getCommentList().addAll(comments);
+        }
+        if (isEnd) {
+            modelList.add(jdModel);
+            modelMap.remove(skuId);
+        }
     }
 
     public static int getTempSize() {

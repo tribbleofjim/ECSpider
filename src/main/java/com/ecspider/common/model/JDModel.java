@@ -9,8 +9,11 @@ import java.util.List;
  * @author lyifee
  * on 2020/12/23
  */
-@Document(collection = "jdData")
+@Document(collection = "myJDdata")
 public class JDModel {
+    @Field("keyword")
+    private String keyword;
+
     @Field("title")
     private String title;
 
@@ -32,13 +35,22 @@ public class JDModel {
     @Override
     public String toString() {
         return "JDModel{" +
-                "title='" + title + '\'' +
+                "keyword='" + '\'' +
+                ", title='" + title + '\'' +
                 ", price='" + price + '\'' +
                 ", shop='" + shop + '\'' +
                 ", sellCount='" + sellCount + '\'' +
                 ", icon='" + icon + '\'' +
                 ", commentList=" + commentList +
                 '}';
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     public String getTitle() {

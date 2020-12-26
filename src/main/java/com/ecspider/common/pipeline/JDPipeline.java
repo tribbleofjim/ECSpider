@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
@@ -56,10 +55,7 @@ public class JDPipeline implements Pipeline {
             if ((skuId = resultItems.get("skuId")) == null) {
                 return;
             }
-
-            if (Integer.parseInt(resultItems.get("score")) == 3) {
-                JDModelCache.addComments(skuId, commentList);
-            }
+            JDModelCache.addComments(skuId, commentList, Integer.parseInt(resultItems.get("score")) == 3);
         }
 
         if (JDModelCache.getTempSize() >= JDModelCache.CACHE_CAPACITY) {

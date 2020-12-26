@@ -22,6 +22,7 @@ import us.codecraft.webmagic.selector.Selectable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lyifee
@@ -50,7 +51,11 @@ public class JDProcessor implements PageProcessor {
     public void process(Page page) {
         if (page.getUrl().regex("https://club\\.jd\\.com/comment/.*").match()) {
             // comment page
-            doWithCommentPage(page);
+            try {
+                doWithCommentPage(page);
+            } catch (InterruptedException e) {
+                LOGGER.error("interrupted_exception:", e);
+            }
         }
         else {
             doWithListPage(page);
@@ -66,7 +71,7 @@ public class JDProcessor implements PageProcessor {
         }
     }
 
-    private void doWithCommentPage(Page page) {
+    private void doWithCommentPage(Page page) throws InterruptedException {
         String url = page.getUrl().get();
         String skuId = UrlUtil.getFromUrl(url, "productId");
         page.putField("skuId", skuId);
@@ -81,6 +86,9 @@ public class JDProcessor implements PageProcessor {
         }
         String text = rawText.replace(");</body></html>", "")
                 .replace("<html><head></head><body>fetchJSON_comment98(", "");
+        if (text.equals("<html><head></head><body></body></html>")) {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(60));
+        }
 
         List<JDComment> commentList = new ArrayList<>();
         int minSize = Integer.MAX_VALUE;
@@ -162,6 +170,9 @@ public class JDProcessor implements PageProcessor {
                 builder.append(tempIcon.text()).append(" ");
             }
             jdModel.setIcon(builder.toString());
+
+            // TODO : keyword的逻辑需要改进，现在先这么写
+            jdModel.setKeyword("手机");
 
             modelList.add(jdModel);
         }

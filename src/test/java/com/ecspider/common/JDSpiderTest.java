@@ -24,7 +24,7 @@ public class JDSpiderTest {
     @Test
     public void jdProcessTest() {
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=3&s=56&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=21&s=596&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)

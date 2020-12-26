@@ -12,10 +12,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
-import us.codecraft.webmagic.selector.Json;
 import us.codecraft.webmagic.selector.JsonPathSelector;
 import us.codecraft.webmagic.selector.Selectable;
 
@@ -87,7 +85,8 @@ public class JDProcessor implements PageProcessor {
         String text = rawText.replace(");</body></html>", "")
                 .replace("<html><head></head><body>fetchJSON_comment98(", "");
         if (text.equals("<html><head></head><body></body></html>")) {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(60));
+            page.putField("commentList", new ArrayList<JDComment>());
+            return;
         }
 
         List<JDComment> commentList = new ArrayList<>();

@@ -23,6 +23,9 @@ public class JDModel {
     @Field("sellCount")
     private String sellCount;
 
+    @Field("icon")
+    private String icon;
+
     @Field("commentList")
     private List<JDComment> commentList;
 
@@ -33,6 +36,7 @@ public class JDModel {
                 ", price='" + price + '\'' +
                 ", shop='" + shop + '\'' +
                 ", sellCount='" + sellCount + '\'' +
+                ", icon='" + icon + '\'' +
                 ", commentList=" + commentList +
                 '}';
     }
@@ -67,6 +71,14 @@ public class JDModel {
 
     public void setSellCount(String sellCount) {
         this.sellCount = sellCount;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     public List<JDComment> getCommentList() {

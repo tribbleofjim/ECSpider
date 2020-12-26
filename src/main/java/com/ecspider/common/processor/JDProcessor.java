@@ -1,6 +1,8 @@
 package com.ecspider.common.processor;
 
+import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
+import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,110 +48,55 @@ public class JDProcessor implements PageProcessor {
             .setUserAgent(USER_AGENT);
 
     public void process(Page page) {
-        if (page.getUrl().regex("https://item.jd.com/[0-9]+.html").match()) {
-            // detail page
-            doWithDetailPage(page);
-
-        } else if (page.getUrl().regex("https://club\\.jd\\.com/comment/.*").match()) {
+        if (page.getUrl().regex("https://club\\.jd\\.com/comment/.*").match()) {
             // comment page
             doWithCommentPage(page);
         }
         else {
-            // list page
-            page.addTargetRequests(page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all());
-
-            String nextPageRequest = getNextPageRequest(page);
-            if (nextPageRequest != null) {
-                Request request = new Request();
-                request.setUrl(nextPageRequest);
-                page.addTargetRequest(request);
-            }
+            doWithListPage(page);
         }
     }
 
-    private void doWithDetailPage(Page page) {
-        Document document = page.getHtml().getDocument();
-        Elements elements;
-
-        Elements reportBtn = document.getElementsByClass("report-btn");
-        if (reportBtn == null) {
-            return;
-        }
-        Element reportContent = reportBtn.get(0);
-        if (reportContent == null) {
-            return;
-        }
-        String skuHref = reportContent.attr("href");
-        String skuId = null;
-        if (StringUtils.isNotBlank(skuHref)) {
-            skuId = UrlUtil.getFromUrl(skuHref, "skuId");
-            if (StringUtils.isNotBlank(skuId)) {
-                page.putField("skuId", skuId);
-            }
-        }
-
-        elements = document.getElementsByClass("sku-name");
-        if (elements != null && elements.size() != 0) {
-            page.putField("title", elements.get(0).text());
-        }
-
-        elements = document.getElementsByClass("p-price");
-        if (elements != null && elements.size() != 0) {
-            Elements prices = elements.get(0).getElementsByTag("span");
-            if (prices != null && prices.size() != 0)
-            page.putField("price", prices.get(1).text());
-        }
-
-        String shop = null;
-        Elements shops = document.getElementsByClass("item");
-        if (shops != null) {
-            shop = shops.get(0).getElementsByClass("name").get(0).text();
-        }
-        page.putField("shop", shop);
-
-        Element commentCount = document.getElementById("comment-count");
-        if (commentCount != null) {
-            page.putField("sellCount", commentCount.getElementsByTag("a").get(0).text());
-        }
-
-        Elements comments = document.getElementsByClass("comment-con");
-        List<String> commentList = new ArrayList<>();
-        for (Element comment : comments) {
-            commentList.add(comment.text());
-        }
-        page.putField("commentList", commentList);
-
-        // add comment links
-        List<String> commentTargets = getCommentRequests(skuId);
-        if (CollectionUtils.isNotEmpty(commentTargets)) {
-            page.addTargetRequests(commentTargets);
+    private void doWithListPage(Page page) {
+        grabProductDetails(page);
+        addCommentUrls(page);
+        String nextUrl = getNextPageRequest(page);
+        if (nextUrl != null) {
+            page.addTargetRequest(nextUrl);
         }
     }
 
     private void doWithCommentPage(Page page) {
-        Json json = page.getJson();
-        if (json == null) {
+        String url = page.getUrl().get();
+        String skuId = UrlUtil.getFromUrl(url, "productId");
+        page.putField("skuId", skuId);
+        String score = UrlUtil.getFromUrl(url, "score");
+        page.putField("score", score);
+
+        String rawText = page.getRawText();
+        System.out.println(rawText);
+        if (rawText == null) {
             page.putField("commentList", new ArrayList<JDComment>());
             return;
         }
-        String text = json.get();
-        System.out.println(text);
+        String text = rawText.replace(");</body></html>", "")
+                .replace("<html><head></head><body>fetchJSON_comment98(", "");
 
         List<JDComment> commentList = new ArrayList<>();
         int minSize = Integer.MAX_VALUE;
-        JsonPathSelector contentSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].content");
+        JsonPathSelector contentSelector = new JsonPathSelector("$.comments[*].content");
         List<String> contents = contentSelector.selectList(text);
         minSize = Math.min(minSize, contents.size());
 
-        JsonPathSelector scoreSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].score");
+        JsonPathSelector scoreSelector = new JsonPathSelector("$.comments[*].score");
         List<String> scores = scoreSelector.selectList(text);
         minSize = Math.min(minSize, scores.size());
 
-        JsonPathSelector creationTimeSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].creationTime");
+        JsonPathSelector creationTimeSelector = new JsonPathSelector("$.comments[*].creationTime");
         List<String> creationTimes = creationTimeSelector.selectList(text);
         minSize = Math.min(minSize, creationTimes.size());
 
-        JsonPathSelector productSizeSelector = new JsonPathSelector("$.fetchJSON_comment98.comments[*].productSize");
+        JsonPathSelector productSizeSelector = new JsonPathSelector("$.comments[*].productSize");
         List<String> productSizes = productSizeSelector.selectList(text);
         minSize = Math.min(minSize, productSizes.size());
 
@@ -163,6 +110,82 @@ public class JDProcessor implements PageProcessor {
         }
 
         page.putField("commentList", commentList);
+    }
+
+    private void grabProductDetails(Page page) {
+        // get product detail
+        Document document = page.getHtml().getDocument();
+        int minSize = Integer.MAX_VALUE;
+        Elements titles = document.getElementsByClass("p-name p-name-type-2");
+        int titlesSize = titles.size();
+        minSize = Math.min(minSize, titlesSize);
+
+        Elements prices = document.getElementsByClass("p-price");
+        int pricesSize = prices.size();
+        minSize = Math.min(minSize, pricesSize);
+
+        List<JDModel> modelList = new ArrayList<>();
+        Elements commits = document.getElementsByClass("p-commit");
+        int commitsSize = commits.size();
+        minSize = Math.min(minSize, commitsSize);
+
+        Elements shops = document.getElementsByClass("p-shop");
+        int shopsSize = shops.size();
+        minSize = Math.min(minSize, shopsSize);
+
+        Elements icons = document.getElementsByClass("p-icons");
+        int iconsSize = icons.size();
+        minSize = Math.min(minSize, iconsSize);
+
+        for (int i = 0; i < minSize; i++) {
+            JDModel jdModel = new JDModel();
+            jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
+            String price = prices.get(i).getElementsByTag("i").get(0).text();
+            if (price == null) {
+                LOGGER.warn("jd_spider_processor_excption:price is null");
+                continue;
+            }
+            jdModel.setPrice(price);
+
+            int s = commits.get(i).getElementsByTag("a").size();
+            String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
+                    commits.get(i).getElementsByTag("a").get(0).text();
+            jdModel.setSellCount(commit);
+
+            if (shops.get(i).getElementsByTag("a").size() > 0) {
+                jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
+            }
+
+            Elements tempIcons = icons.get(i).getElementsByTag("i");
+            StringBuilder builder = new StringBuilder();
+            for (Element tempIcon : tempIcons) {
+                builder.append(tempIcon.text()).append(" ");
+            }
+            jdModel.setIcon(builder.toString());
+
+            modelList.add(jdModel);
+        }
+        page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
+    }
+
+    private void addCommentUrls(Page page) {
+        // get skuIds
+        List<String> detailUrls = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
+        List<String> skuIds = new ArrayList<>();
+        for (String url : detailUrls) {
+            System.out.println(url);
+            String skuId = url.replace(".html", "").replace("//item.jd.com/", "");
+            skuIds.add(skuId);
+        }
+        page.putField("skuIds", skuIds);
+
+        // add comment links
+        for (String skuId : skuIds) {
+            List<String> commentTargets = getCommentRequests(skuId);
+            if (CollectionUtils.isNotEmpty(commentTargets)) {
+                page.addTargetRequests(commentTargets);
+            }
+        }
     }
 
     private String getNextPageRequest(Page page) {

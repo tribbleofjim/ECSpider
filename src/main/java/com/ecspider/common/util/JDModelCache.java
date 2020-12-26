@@ -14,8 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * on 2020/12/24
  */
 public class JDModelCache {
-    private static Map<String, JDModel> modelMap = new ConcurrentHashMap<>();
-    private static List<JDModel> modelList = new ArrayList<>();
+    public static final Integer CACHE_CAPACITY = 30;
+
+    private static final Map<String, JDModel> modelMap = new ConcurrentHashMap<>();
+
+    private static final List<JDModel> modelList = new ArrayList<>();
 
     public static void add(String skuId, JDModel model) {
         if (StringUtils.isBlank(skuId)) {

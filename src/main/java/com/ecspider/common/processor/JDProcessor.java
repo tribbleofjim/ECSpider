@@ -4,6 +4,8 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
+import com.ecspider.web.SpiderAdvanceCache;
+import com.ecspider.web.model.SpiderAdvance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -61,15 +63,26 @@ public class JDProcessor implements PageProcessor {
         }
     }
 
+    /**
+     * 处理列表页
+     * @param page page对象
+     */
     private void doWithListPage(Page page) {
-        grabProductDetails(page);
+        int pageSize = grabProductDetails(page);
+        String url = page.getUrl().get();
+        String keyword = UrlUtil.getFromUrl(url, "keyword");
         addCommentUrls(page);
-        String nextUrl = getNextPageRequest(page, getPageNum(page));
+        String nextUrl = getNextPageRequest(page, keyword, getPageNum(page), pageSize);
         if (nextUrl != null) {
             page.addTargetRequest(nextUrl);
         }
     }
 
+    /**
+     * 处理评论页
+     * @param page page对象
+     * @throws InterruptedException exception
+     */
     private void doWithCommentPage(Page page) throws InterruptedException {
         String url = page.getUrl().get();
         String skuId = UrlUtil.getFromUrl(url, "productId");
@@ -120,6 +133,11 @@ public class JDProcessor implements PageProcessor {
         page.putField("commentList", commentList);
     }
 
+    /**
+     * 获取一共有多少页数
+     * @param page page对象
+     * @return 总共的页数
+     */
     private int getPageNum(Page page) {
         Document document = page.getHtml().getDocument();
         Element bottom = document.getElementById("J_bottomPage");
@@ -137,7 +155,12 @@ public class JDProcessor implements PageProcessor {
         return Integer.parseInt(pageNum);
     }
 
-    private void grabProductDetails(Page page) {
+    /**
+     * 从列表页获取商品信息
+     * @param page page对象
+     * @return pageSize，页面上一共有多少个商品
+     */
+    private int grabProductDetails(Page page) {
         // get product detail
         Document document = page.getHtml().getDocument();
         int minSize = Integer.MAX_VALUE;
@@ -188,14 +211,20 @@ public class JDProcessor implements PageProcessor {
             }
             jdModel.setIcon(builder.toString());
 
-            // TODO : keyword的逻辑需要改进，现在先这么写
-            jdModel.setKeyword("手机");
+            String url = page.getUrl().get();
+            jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
 
             modelList.add(jdModel);
         }
         page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
+
+        return minSize;
     }
 
+    /**
+     * 添加评论url
+     * @param page page对象
+     */
     private void addCommentUrls(Page page) {
         // get skuIds
         List<String> detailUrls = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
@@ -216,7 +245,15 @@ public class JDProcessor implements PageProcessor {
         }
     }
 
-    private String getNextPageRequest(Page page, int pageNum) {
+    /**
+     * 处于列表页时，获取下一页的url
+     * @param page page对象
+     * @param pageNum 共有多少页
+     * @param pageSize 本页有多少商品
+     * @return url
+     */
+    private String getNextPageRequest(Page page, String keyword, int pageNum, int pageSize) {
+        // get next page
         int maxPage = pageNum * 2 - 1;
         Selectable rawUrl = page.getUrl();
         String url = rawUrl.get();
@@ -226,12 +263,29 @@ public class JDProcessor implements PageProcessor {
         if (nextPage > maxPage) {
             return null;
         }
-        Integer nextStart = Integer.parseInt(params.get("s")) + 60;
+        Integer nextStart = Integer.parseInt(params.get("s")) + pageSize;
         url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
         url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+
+        // show to front page
+        SpiderAdvance advance;
+        if ((advance = SpiderAdvanceCache.get(keyword)) == null) {
+            advance = new SpiderAdvance();
+            advance.setKeyword(keyword);
+        }
+        advance.setPageNum(pageNum);
+        advance.setTemp((nextPage + 1) / 2);
+        SpiderAdvanceCache.put(keyword, advance);
+
         return url;
     }
 
+    /**
+     * 根据单个商品的skuId获取该商品的评论
+     * 包括好评、中评和差评
+     * @param skuId skuId
+     * @return 单个商品的三个层级评论url
+     */
     private List<String> getCommentRequests(String skuId) {
         if (StringUtils.isBlank(skuId)) {
             return null;

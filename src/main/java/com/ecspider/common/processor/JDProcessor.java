@@ -20,7 +20,6 @@ import us.codecraft.webmagic.selector.Selectable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author lyifee
@@ -32,6 +31,8 @@ public class JDProcessor implements PageProcessor {
     private static final int RETRY_TIMES = 3;
 
     private static final int SLEEP_TIME_MILLIS = 5000;
+
+    private static final int DEFAULT_PAGE_NUM = 110;
 
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) " +
             "AppleWebKit/537.31 (KHTML, like Gecko) " +
@@ -63,7 +64,7 @@ public class JDProcessor implements PageProcessor {
     private void doWithListPage(Page page) {
         grabProductDetails(page);
         addCommentUrls(page);
-        String nextUrl = getNextPageRequest(page);
+        String nextUrl = getNextPageRequest(page, getPageNum(page));
         if (nextUrl != null) {
             page.addTargetRequest(nextUrl);
         }
@@ -117,6 +118,23 @@ public class JDProcessor implements PageProcessor {
         }
 
         page.putField("commentList", commentList);
+    }
+
+    private int getPageNum(Page page) {
+        Document document = page.getHtml().getDocument();
+        Element bottom = document.getElementById("J_bottomPage");
+        if (bottom == null) {
+            return DEFAULT_PAGE_NUM;
+        }
+
+        Elements skip = bottom.getElementsByClass("p-skip");
+        if (skip == null || skip.size() == 0) {
+            return DEFAULT_PAGE_NUM;
+        }
+
+        Element em = skip.get(0).getElementsByTag("em").get(0);
+        String pageNum = em.getElementsByTag("b").get(0).text();
+        return Integer.parseInt(pageNum);
     }
 
     private void grabProductDetails(Page page) {
@@ -198,13 +216,14 @@ public class JDProcessor implements PageProcessor {
         }
     }
 
-    private String getNextPageRequest(Page page) {
+    private String getNextPageRequest(Page page, int pageNum) {
+        int maxPage = pageNum * 2 - 1;
         Selectable rawUrl = page.getUrl();
         String url = rawUrl.get();
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
         int nextPage = Integer.parseInt(params.get("page")) + 2;
-        if (nextPage > 110) {
+        if (nextPage > maxPage) {
             return null;
         }
         Integer nextStart = Integer.parseInt(params.get("s")) + 60;

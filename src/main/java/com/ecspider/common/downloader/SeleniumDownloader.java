@@ -12,6 +12,7 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.selector.PlainText;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lyifee
@@ -54,8 +55,15 @@ public class SeleniumDownloader implements Downloader {
         }
 
         // page execution
-        ((JavascriptExecutor) webDriver).executeScript("window.scrollTo(0,document.body.scrollHeight)");
         manager.window().maximize();
+        // 将页面滚动到底部后休眠1秒，确保页面上的所有元素加载出来
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollTo(0,document.body.scrollHeight)");
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
+
+        } catch (InterruptedException e) {
+            LOGGER.error("selenium_downloader_interrupted:", e);
+        }
 
         // do action
         SeleniumAction reqAction=(SeleniumAction) request.getExtra("action");

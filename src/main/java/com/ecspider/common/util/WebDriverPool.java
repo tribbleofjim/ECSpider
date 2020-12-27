@@ -48,7 +48,6 @@ public class WebDriverPool implements ApplicationContextAware {
 
     public void init() {
         driverQueue = new LinkedBlockingQueue<>(capacity);
-        // WebDriverConfigure webDriverConfigure = (WebDriverConfigure) ctx.getBean("webDriverConfigure");
         System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, "/Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver");
         options.addArguments("--headless");
     }

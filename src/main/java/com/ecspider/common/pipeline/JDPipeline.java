@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
-
 import java.util.List;
 import java.util.Map;
 

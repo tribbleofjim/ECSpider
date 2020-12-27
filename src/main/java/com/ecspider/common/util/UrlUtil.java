@@ -19,7 +19,10 @@ public class UrlUtil {
             return null;
         }
         String[] pieces = splitUrl(url);
-        assert pieces != null;
+        if (pieces == null) {
+            return null;
+        }
+
         HashMap<String, String> map = new HashMap<>();
         String[] params = pieces[1].split("&");
         for (String param : params) {
@@ -50,16 +53,15 @@ public class UrlUtil {
         }
 
         Map<String, String> paramsMap = getUrlParams(url);
-        if (paramsMap == null) {
-            return url;
-        }
-
-        if (paramsMap.containsKey(key)) {
+        if (paramsMap != null && paramsMap.containsKey(key)) {
             return url.replace(getParamByKeyValue(key, paramsMap.get(key)),
                     getParamByKeyValue(key, value));
 
         } else {
-            return url + getParamByKeyValue(key, value);
+            if (url.endsWith("?")) {
+                return url + getParamByKeyValue(key, value);
+            }
+            return url + "&" + getParamByKeyValue(key, value);
         }
     }
 

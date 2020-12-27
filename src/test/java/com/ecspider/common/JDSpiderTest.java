@@ -1,5 +1,6 @@
 package com.ecspider.common;
 
+import com.ecspider.ECApplication;
 import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
@@ -9,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
-
-import java.util.Map;
 
 /**
  * @author lyifee
@@ -34,13 +33,13 @@ public class JDSpiderTest {
 
     @Test
     public void urlUtilTest() {
-        String url = "https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=2&s=61&click=0";
-        Map<String, String> params = UrlUtil.getUrlParams(url);
-        assert params != null;
-        Integer nextPage = Integer.parseInt(params.get("page")) + 2;
-        Integer nextStart = Integer.parseInt(params.get("s")) + 60;
-        url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
-        url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+        String url = "https://search.jd.com/Search?";
+        url = UrlUtil.addParamToUrl(url, "keyword", "手机");
+        url = UrlUtil.addParamToUrl(url, "suggest", "1.def.0.base");
+        url = UrlUtil.addParamToUrl(url, "wq", "手机");
+        url = UrlUtil.addParamToUrl(url, "page", String.valueOf(3));
+        url = UrlUtil.addParamToUrl(url, "s", String.valueOf(56));
+        url = UrlUtil.addParamToUrl(url, "click", "0");
         System.out.println(url);
     }
 

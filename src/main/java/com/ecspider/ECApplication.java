@@ -1,4 +1,4 @@
-package com.ecspider.common;
+package com.ecspider;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -19,6 +19,8 @@ import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.JsonPathSelector;
 import us.codecraft.webmagic.selector.Selectable;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +214,14 @@ public class JDProcessor implements PageProcessor {
             jdModel.setIcon(builder.toString());
 
             String url = page.getUrl().get();
-            jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
+            try {
+                String deUrl = URLDecoder.decode(url, "utf-8");
+                jdModel.setKeyword(UrlUtil.getFromUrl(deUrl, "keyword"));
+
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("unsupported_encoding_when_decoding_url:", e);
+                jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
+            }
 
             modelList.add(jdModel);
         }

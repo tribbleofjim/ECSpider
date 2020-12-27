@@ -19,7 +19,7 @@ public class UrlUtil {
             return null;
         }
         String[] pieces = splitUrl(url);
-        if (pieces == null) {
+        if (pieces == null || pieces.length == 1) {
             return null;
         }
 
@@ -70,7 +70,7 @@ public class UrlUtil {
             return null;
         }
         String[] pieces = url.split("\\?");
-        if (pieces.length != 2) {
+        if (pieces.length <= 0) {
             LOGGER.error("analyzeUtil_error:invalid_url:{}", url);
             return null;
         }

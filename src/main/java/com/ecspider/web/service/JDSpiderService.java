@@ -4,10 +4,12 @@ import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
 import com.ecspider.common.util.UrlUtil;
+import com.ecspider.web.SpiderExecutorPool;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import javax.annotation.Resource;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author lyifee
@@ -21,13 +23,14 @@ public class JDSpiderService {
     private static final String BASE_URL = "https://search.jd.com/Search?";
 
     public void runJDSpider(String keyword, int threadNum) {
-        Spider.create(new JDProcessor())
+        ExecutorService spiderPool = SpiderExecutorPool.getSpiderPool();
+        Spider preparedSpider = Spider.create(new JDProcessor())
                 .addUrl(getRootUrl(keyword))
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
-                .thread(threadNum)
-                .run();
+                .thread(threadNum);
+        spiderPool.execute(preparedSpider);
     }
 
     private String getRootUrl(String keyword) {

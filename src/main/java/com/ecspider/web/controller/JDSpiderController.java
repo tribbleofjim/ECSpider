@@ -1,11 +1,13 @@
 package com.ecspider.web.controller;
 
+import com.ecspider.web.model.Result;
 import com.ecspider.web.service.JDSpiderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 
@@ -21,15 +23,16 @@ public class JDSpiderController {
     private JDSpiderService jdSpiderService;
 
     @RequestMapping("/spider")
-    public boolean runJDSpider(@RequestParam(name = "keyword") String keyword,
-                               @RequestParam(name = "threadNum") int threadNum) {
+    @ResponseBody
+    public Result runJDSpider(@RequestParam(name = "keyword") String keyword,
+                              @RequestParam(name = "threadNum") int threadNum) {
         try {
             jdSpiderService.runJDSpider(keyword, threadNum);
-            return true;
+            return Result.success("启动成功！");
 
         } catch (Exception e) {
             LOGGER.error("error_starting_spider:", e);
-            return false;
+            return Result.fail(String.format("启动异常，异常信息:%s", e.getMessage()));
         }
     }
 }

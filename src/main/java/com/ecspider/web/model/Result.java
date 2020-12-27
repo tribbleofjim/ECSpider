@@ -9,17 +9,44 @@ public class Result {
 
     private Boolean success;
 
-    private Result(String message, boolean success) {
+    private Object model;
+
+    private Result(String message, boolean success, Object model) {
         this.message = message;
         this.success = success;
+        this.model = model;
+    }
+
+    public static Result success() {
+        return new Result(null, true, null);
+    }
+
+    public static Result fail() {
+        return new Result(null, false, null);
     }
 
     public static Result success(String message) {
-        return new Result(message, true);
+        return new Result(message, true, null);
     }
 
     public static Result fail(String message) {
-        return new Result(message, false);
+        return new Result(message, false, null);
+    }
+
+    public static Result success(Object model) {
+        return new Result(null, true, model);
+    }
+
+    public static Result fail(Object model) {
+        return new Result(null, false, model);
+    }
+
+    public static Result success(String message, Object model) {
+        return new Result(message, true, model);
+    }
+
+    public static Result fail(String message, Object model) {
+        return new Result(message, false, model);
     }
 
     public String getMessage() {

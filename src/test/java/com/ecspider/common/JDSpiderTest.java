@@ -4,6 +4,7 @@ import com.ecspider.ECApplication;
 import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
+import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.UrlUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,5 +65,10 @@ public class JDSpiderTest {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void configUtilTest() {
+        System.out.println(ConfigUtil.getValue("application.yml", "props.driver.path"));
     }
 }

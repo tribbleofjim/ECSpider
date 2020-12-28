@@ -6,9 +6,6 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author lyifee
  * on 2020/12/21
  */
-public class WebDriverPool implements ApplicationContextAware {
+public class WebDriverPool {
     // TODO :  目前只支持Chrome，以后扩展到支持所有的webDriver
     private static final Logger LOGGER = LoggerFactory.getLogger(WebDriverPool.class);
 
@@ -35,8 +32,6 @@ public class WebDriverPool implements ApplicationContextAware {
 
     private static final Integer PAGELOAD_TIMEOUT_SECONDS = 60;
 
-    private static ApplicationContext ctx;
-
     public WebDriverPool() {
         init();
     }
@@ -48,7 +43,12 @@ public class WebDriverPool implements ApplicationContextAware {
 
     public void init() {
         driverQueue = new LinkedBlockingQueue<>(capacity);
-        System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY, "/Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver");
+        System.setProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY,
+                ConfigUtil.getValueToString("application.yml", "props.driver.path"));
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("blink-settings=imagesEnabled=false");
+        options.addArguments("--disable-gpu");
         options.addArguments("--headless");
     }
 
@@ -103,9 +103,5 @@ public class WebDriverPool implements ApplicationContextAware {
         } catch (Exception e) {
             LOGGER.error("closing_webDriverPool_failed:", e);
         }
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        ctx = applicationContext;
     }
 }

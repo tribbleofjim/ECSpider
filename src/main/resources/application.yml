@@ -5,4 +5,4 @@ spring:
       database: test
 props:
   driver:
-    path: /Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver
+    path: /usr/local/chromedriver

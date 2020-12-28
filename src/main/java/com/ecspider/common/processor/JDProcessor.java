@@ -216,14 +216,15 @@ public class JDProcessor implements PageProcessor {
             String url = page.getUrl().get();
             try {
                 String deUrl = URLDecoder.decode(url, "utf-8");
-                jdModel.setKeyword(UrlUtil.getFromUrl(deUrl, "keyword"));
+                String keyword = UrlUtil.getFromUrl(deUrl, "keyword");
+                jdModel.setKeyword(keyword);
+                modelList.add(jdModel);
 
             } catch (UnsupportedEncodingException e) {
                 LOGGER.error("unsupported_encoding_when_decoding_url:", e);
                 jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
+                modelList.add(jdModel);
             }
-
-            modelList.add(jdModel);
         }
         page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
 
@@ -270,6 +271,7 @@ public class JDProcessor implements PageProcessor {
         assert params != null;
         int nextPage = Integer.parseInt(params.get("page")) + 2;
         if (nextPage > maxPage) {
+            SpiderAdvanceCache.remove(keyword);
             return null;
         }
         Integer nextStart = Integer.parseInt(params.get("s")) + pageSize;

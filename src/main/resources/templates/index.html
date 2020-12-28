@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ECSpider</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script type="text/javascript" src="/layui/layui.js"></script>
+</head>
+<body>
+    <!--爬取过的关键词-->
+    <div class="layui-row">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>已爬取/正在爬取的关键词</legend>
+            <div class="layui-field-box">
+                <div th:each="keyword : ${keywords}">
+                    <span class="layui-badge" th:value="${keyword}"></span>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    <!--当前爬取进度-->
+    <div class="layui-row">
+        <div th:each="advance : ${advances}">
+            <p>
+                关键词:
+                <label th:value="${advance.keyword}"></label>
+                共有
+                <label th:value="${advance.pageNum}"></label>
+                页，现爬取: 第
+                <label th:value="${advance.temp}"></label>
+                页
+            </p>
+        </div>
+    </div>
+
+    <div class="layui-row">
+        <!--开启一个新的爬虫-->
+        <div>
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">关键词</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="keyword" placeholder="请输入关键词" autocomplete="off" class="layui-input">
+                        <input type="text" id="threadNum" placeholder="请输入爬取的线程数" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--提交按钮-->
+        <div>
+            <button type="button" class="layui-btn" onclick="startSpider()">开始爬取</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/js/index.js"></script>
+
+</body>
+</html>

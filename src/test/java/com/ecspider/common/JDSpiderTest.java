@@ -11,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * @author lyifee
  * on 2020/12/22
@@ -23,7 +26,7 @@ public class JDSpiderTest {
     @Test
     public void jdProcessTest() {
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=87&s=2576&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=数码&suggest=1.def.0.base&wq=数码&page=1&s=1&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
@@ -47,5 +50,19 @@ public class JDSpiderTest {
     public void regexTest() {
         String url = "https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98&productId=100009082466&score=3&sortType=6&page=1&pageSize=10&isShadowSku=0&fold=1";
         System.out.println(url.matches("https://club\\.jd\\.com/comment/.*"));
+    }
+
+    @Test
+    public void decodeTest() {
+        String url = "https://search.jd.com/Search?keyword=%E6%95%B0%E7%A0%81&enc=utf-8&wq=%E6%95%B0%E7%A0%81&pvid=9eb460a62e3e4d258cbdff8936a044de";
+        try {
+            String deUrl = URLDecoder.decode(url, "utf-8");
+            System.out.println(deUrl);
+            String keyword = UrlUtil.getFromUrl(deUrl, "keyword");
+            System.out.println(keyword);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }

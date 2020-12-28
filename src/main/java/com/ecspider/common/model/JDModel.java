@@ -35,7 +35,7 @@ public class JDModel {
     @Override
     public String toString() {
         return "JDModel{" +
-                "keyword='" + '\'' +
+                "keyword='" + keyword + '\'' +
                 ", title='" + title + '\'' +
                 ", price='" + price + '\'' +
                 ", shop='" + shop + '\'' +

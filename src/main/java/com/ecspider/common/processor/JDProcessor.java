@@ -218,13 +218,13 @@ public class JDProcessor implements PageProcessor {
                 String deUrl = URLDecoder.decode(url, "utf-8");
                 String keyword = UrlUtil.getFromUrl(deUrl, "keyword");
                 jdModel.setKeyword(keyword);
-                modelList.add(jdModel);
 
             } catch (UnsupportedEncodingException e) {
                 LOGGER.error("unsupported_encoding_when_decoding_url:", e);
                 jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
-                modelList.add(jdModel);
             }
+
+            modelList.add(jdModel);
         }
         page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
 

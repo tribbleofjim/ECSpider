@@ -36,19 +36,22 @@
 
     <div class="layui-row">
         <!--开启一个新的爬虫-->
-        <div>
+        <div class="layui-col-md8 layui-col-md-offset2">
             <form class="layui-form">
                 <div class="layui-form-item">
                     <label class="layui-form-label">关键词</label>
                     <div class="layui-input-block">
                         <input type="text" id="keyword" placeholder="请输入关键词" autocomplete="off" class="layui-input">
-                        <input type="text" id="threadNum" placeholder="请输入爬取的线程数" autocomplete="off" class="layui-input">
+                    </div>
+                    <label class="layui-form-label">线程数</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="threadNum" placeholder="请输入线程数" autocomplete="off" class="layui-input">
                     </div>
                 </div>
             </form>
         </div>
         <!--提交按钮-->
-        <div>
+        <div class="layui-col-md4 layui-col-md-offset6">
             <button type="button" class="layui-btn" onclick="startSpider()">开始爬取</button>
         </div>
     </div>

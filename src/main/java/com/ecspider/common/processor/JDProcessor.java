@@ -24,6 +24,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lyifee
@@ -98,13 +99,14 @@ public class JDProcessor implements PageProcessor {
             page.putField("commentList", new ArrayList<JDComment>());
             return;
         }
-        String text = rawText.replace(");</body></html>", "")
-                .replace("<html><head></head><body>fetchJSON_comment98(", "");
-        if (text.equals("<html><head></head><body></body></html>")) {
+        if (rawText.equals("<html><head></head><body></body></html>")) {
+            Thread.sleep(TimeUnit.MINUTES.toMillis(1L));
             page.putField("commentList", new ArrayList<JDComment>());
             return;
         }
 
+        String text = rawText.replace(");</body></html>", "")
+                .replace("<html><head></head><body>fetchJSON_comment98(", "");
         List<JDComment> commentList = new ArrayList<>();
         int minSize = Integer.MAX_VALUE;
         JsonPathSelector contentSelector = new JsonPathSelector("$.comments[*].content");

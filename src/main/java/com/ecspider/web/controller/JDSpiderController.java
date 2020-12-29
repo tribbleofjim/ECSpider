@@ -25,9 +25,14 @@ public class JDSpiderController {
     @RequestMapping("/spider")
     @ResponseBody
     public Result runJDSpider(@RequestParam(name = "keyword") String keyword,
-                              @RequestParam(name = "threadNum") int threadNum) {
+                              @RequestParam(name = "threadNum") int threadNum,
+                              @RequestParam(name = "startPage", required = false) Integer startPage) {
         try {
-            jdSpiderService.runJDSpider(keyword, threadNum);
+            if (startPage != null) {
+                jdSpiderService.runJDSpider(keyword, threadNum, startPage);
+            } else {
+                jdSpiderService.runJDSpider(keyword, threadNum, 1);
+            }
             return Result.success("启动成功！");
 
         } catch (Exception e) {

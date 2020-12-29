@@ -16,8 +16,13 @@ function startSpider() {
         layer.msg('请输入线程数！');
         return;
     }
+    let startPage = document.getElementById('startPage').value;
+
     let xhr = new XMLHttpRequest();
     let url = "/spider?keyword=" + keyword + "&threadNum=" + threadNum;
+    if (startPage !== null) {
+        url += "&startPage=" + startPage;
+    }
     xhr.open('GET', url, true);
     xhr.onreadystatechange = function() {
         if (xhr.status == 200) {

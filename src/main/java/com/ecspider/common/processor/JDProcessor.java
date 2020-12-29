@@ -39,6 +39,8 @@ public class JDProcessor implements PageProcessor {
 
     private static final int DEFAULT_PAGE_NUM = 110;
 
+    private static final String JD_REFERER = "https://item.jd.com/";
+
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) " +
             "AppleWebKit/537.31 (KHTML, like Gecko) " +
             "Chrome/26.0.1410.65 " +
@@ -50,7 +52,9 @@ public class JDProcessor implements PageProcessor {
     private Site site = Site.me()
             .setRetryTimes(RETRY_TIMES)
             .setSleepTime(SLEEP_TIME_MILLIS)
-            .setUserAgent(USER_AGENT);
+            .setUserAgent(USER_AGENT)
+            .addHeader("Referer", JD_REFERER)
+            ;
 
     public void process(Page page) {
         if (page.getUrl().regex("https://club\\.jd\\.com/comment/.*").match()) {
@@ -100,7 +104,7 @@ public class JDProcessor implements PageProcessor {
             return;
         }
         if (rawText.equals("<html><head></head><body></body></html>")) {
-            Thread.sleep(TimeUnit.MINUTES.toMillis(1L));
+            Thread.sleep(TimeUnit.SECONDS.toMillis(150L));
             page.putField("commentList", new ArrayList<JDComment>());
             return;
         }

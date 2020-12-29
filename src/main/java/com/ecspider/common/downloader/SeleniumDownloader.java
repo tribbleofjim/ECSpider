@@ -12,6 +12,7 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.selector.PlainText;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,8 +21,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class SeleniumDownloader implements Downloader {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeleniumDownloader.class);
-
-    private static final Long SLEEP_MILLIS = 4000L;
 
     private WebDriverPool webDriverPool = new WebDriverPool();
 
@@ -38,7 +37,7 @@ public class SeleniumDownloader implements Downloader {
         Page page = new Page();
         try {
             webDriver.get(request.getUrl());
-            Thread.sleep(SLEEP_MILLIS);
+            Thread.sleep(getSleepMillis());
         } catch (InterruptedException e) {
             LOGGER.error("webDriver_get_url_exception:", e);
         }
@@ -83,5 +82,10 @@ public class SeleniumDownloader implements Downloader {
 
     public void setThread(int i) {
 
+    }
+
+    private int getSleepMillis() {
+        Random random = new Random();
+        return random.nextInt(8000);
     }
 }

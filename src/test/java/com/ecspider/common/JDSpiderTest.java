@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
+import us.codecraft.webmagic.proxy.Proxy;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -26,9 +29,15 @@ public class JDSpiderTest {
 
     @Test
     public void jdProcessTest() {
+        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(
+                new Proxy("47.97.167.200",3128)
+                ,new Proxy("61.153.251.150",22222)));
+
         Spider.create(new JDProcessor())
                 .addUrl("https://search.jd.com/Search?keyword=数码&suggest=1.def.0.base&wq=数码&page=1&s=1&click=0")
                 .setDownloader(new SeleniumDownloader())
+                .setDownloader(httpClientDownloader)
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
                 .thread(1)

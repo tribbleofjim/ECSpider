@@ -4,7 +4,7 @@ import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
 import com.ecspider.common.util.UrlUtil;
-import com.ecspider.web.SpiderAdvanceCache;
+import com.ecspider.common.SpiderAdvanceCache;
 import com.ecspider.web.SpiderExecutorPool;
 import com.ecspider.web.model.SpiderAdvance;
 import org.slf4j.Logger;

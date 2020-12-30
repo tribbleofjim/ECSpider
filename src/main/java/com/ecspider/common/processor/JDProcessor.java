@@ -4,7 +4,7 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
-import com.ecspider.web.SpiderAdvanceCache;
+import com.ecspider.common.SpiderAdvanceCache;
 import com.ecspider.web.model.SpiderAdvance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -179,6 +179,10 @@ public class JDProcessor implements PageProcessor {
         page.putField("commentList", commentList);
     }
 
+    /**
+     * 从列表页抓取商品的skuId
+     * @param page
+     */
     private void putSkuIdsToPage(Page page) {
         // get skuIds
         List<String> detailUrls = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
@@ -269,6 +273,11 @@ public class JDProcessor implements PageProcessor {
         return minSize;
     }
 
+    /**
+     * 从详情页的url获取keyword
+     * @param url url
+     * @return keyword
+     */
     private String getKeyword(String url) {
         String keyword = null;
         try {

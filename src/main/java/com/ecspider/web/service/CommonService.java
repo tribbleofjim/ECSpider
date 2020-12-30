@@ -1,6 +1,6 @@
 package com.ecspider.web.service;
 
-import com.ecspider.web.SpiderAdvanceCache;
+import com.ecspider.common.SpiderAdvanceCache;
 import com.ecspider.web.model.SpiderAdvance;
 import org.springframework.stereotype.Service;
 

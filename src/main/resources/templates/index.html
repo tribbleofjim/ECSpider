@@ -13,7 +13,7 @@
             <legend>已爬取/正在爬取的关键词</legend>
             <div class="layui-field-box">
                 <div th:each="keyword : ${keywords}">
-                    <span class="layui-badge" th:value="${keyword}"></span>
+                    <p th:value="${keyword}"></p>
                 </div>
             </div>
         </fieldset>
@@ -24,11 +24,11 @@
         <div th:each="advance : ${advances}">
             <p>
                 关键词:
-                <label th:value="${advance.keyword}"></label>
+                <p th:value="${advance.keyword}"></p>
                 共有
-                <label th:value="${advance.pageNum}"></label>
+                <p th:value="${advance.pageNum}"></p>
                 页，现爬取: 第
-                <label th:value="${advance.temp}"></label>
+                <p th:value="${advance.temp}"></p>
                 页
             </p>
         </div>

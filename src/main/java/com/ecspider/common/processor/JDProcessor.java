@@ -37,7 +37,7 @@ public class JDProcessor implements PageProcessor {
 
     private static final int SLEEP_TIME_MILLIS = 5000;
 
-    private static final int DEFAULT_PAGE_NUM = 110;
+    private static final int DEFAULT_PAGE_NUM = 60;
 
     private static final String JD_REFERER = "https://item.jd.com/";
 
@@ -64,8 +64,11 @@ public class JDProcessor implements PageProcessor {
             } catch (InterruptedException e) {
                 LOGGER.error("interrupted_exception:", e);
             }
-        }
-        else {
+        } else if (page.getUrl().regex("https://item.jd.com/[0-9]+.html").match()) {
+            // detail page
+            doWithDetailPage(page);
+
+        } else {
             doWithListPage(page);
         }
     }
@@ -75,14 +78,49 @@ public class JDProcessor implements PageProcessor {
      * @param page page对象
      */
     private void doWithListPage(Page page) {
+        putSkuIdsToPage(page);
         int pageSize = grabProductDetails(page);
+        addUrls(page);
+
         String url = page.getUrl().get();
-        String keyword = UrlUtil.getFromUrl(url, "keyword");
-        addCommentUrls(page);
-        String nextUrl = getNextPageRequest(page, keyword, getPageNum(page), pageSize);
+        String keyword = getKeyword(url);
+        int pageNum = getPageNum(page, keyword);
+        String nextUrl = getNextPageRequest(page, keyword, pageNum, pageSize);
         if (nextUrl != null) {
             page.addTargetRequest(nextUrl);
         }
+    }
+
+    /**
+     * 处理详情页
+     * @param page page对象
+     */
+    private void doWithDetailPage(Page page) {
+        Document document = page.getHtml().getDocument();
+        Elements classes = document.getElementsByClass("crumb fl clearfix");
+        if (classes != null && classes.size() == 0) {
+            return;
+        }
+        Element itemClass = classes.get(0);
+        if (itemClass == null) {
+            return;
+        }
+
+        Elements itemClasses = itemClass.getElementsByClass("item");
+        StringBuilder builder = new StringBuilder();
+        if (itemClasses != null) {
+            for (Element item : itemClasses) {
+                Elements a = item.getElementsByTag("a");
+                if (a == null || a.size() == 0) {
+                    continue;
+                }
+                builder.append(a.get(0).text()).append("-");
+            }
+        }
+
+        page.putField("skuId", page.getUrl().get()
+                .replace(".html", "").replace("https://item.jd.com/", ""));
+        page.putField(PageItemKeys.JD_DETAIL_PAGE.getKey(), builder.toString());
     }
 
     /**
@@ -141,26 +179,16 @@ public class JDProcessor implements PageProcessor {
         page.putField("commentList", commentList);
     }
 
-    /**
-     * 获取一共有多少页数
-     * @param page page对象
-     * @return 总共的页数
-     */
-    private int getPageNum(Page page) {
-        Document document = page.getHtml().getDocument();
-        Element bottom = document.getElementById("J_bottomPage");
-        if (bottom == null) {
-            return DEFAULT_PAGE_NUM;
+    private void putSkuIdsToPage(Page page) {
+        // get skuIds
+        List<String> detailUrls = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
+        List<String> skuIds = new ArrayList<>();
+        for (String url : detailUrls) {
+            System.out.println(url);
+            String skuId = url.replace(".html", "").replace("//item.jd.com/", "");
+            skuIds.add(skuId);
         }
-
-        Elements skip = bottom.getElementsByClass("p-skip");
-        if (skip == null || skip.size() == 0) {
-            return DEFAULT_PAGE_NUM;
-        }
-
-        Element em = skip.get(0).getElementsByTag("em").get(0);
-        String pageNum = em.getElementsByTag("b").get(0).text();
-        return Integer.parseInt(pageNum);
+        page.putField("skuIds", skuIds);
     }
 
     /**
@@ -193,9 +221,14 @@ public class JDProcessor implements PageProcessor {
         int iconsSize = icons.size();
         minSize = Math.min(minSize, iconsSize);
 
+        List<String> skuIds = page.getResultItems().get("skuIds");
+
         for (int i = 0; i < minSize; i++) {
             JDModel jdModel = new JDModel();
+            // get title
             jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
+
+            // get price
             String price = prices.get(i).getElementsByTag("i").get(0).text();
             if (price == null) {
                 LOGGER.warn("jd_spider_processor_excption:price is null");
@@ -203,15 +236,18 @@ public class JDProcessor implements PageProcessor {
             }
             jdModel.setPrice(price);
 
+            // get sellCount
             int s = commits.get(i).getElementsByTag("a").size();
             String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
                     commits.get(i).getElementsByTag("a").get(0).text();
             jdModel.setSellCount(commit);
 
+            // get shop
             if (shops.get(i).getElementsByTag("a").size() > 0) {
                 jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
             }
 
+            // get icons
             Elements tempIcons = icons.get(i).getElementsByTag("i");
             StringBuilder builder = new StringBuilder();
             for (Element tempIcon : tempIcons) {
@@ -219,46 +255,104 @@ public class JDProcessor implements PageProcessor {
             }
             jdModel.setIcon(builder.toString());
 
+            // get keyword
             String url = page.getUrl().get();
-            try {
-                String deUrl = URLDecoder.decode(url, "utf-8");
-                String keyword = UrlUtil.getFromUrl(deUrl, "keyword");
-                jdModel.setKeyword(keyword);
+            jdModel.setKeyword(getKeyword(url));
 
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("unsupported_encoding_when_decoding_url:", e);
-                jdModel.setKeyword(UrlUtil.getFromUrl(url, "keyword"));
-            }
+            // get skuId
+            jdModel.setSkuId(skuIds.get(i));
 
             modelList.add(jdModel);
         }
-        page.putField(PageItemKeys.JD_PAGE_KEY.getKey(), modelList);
+        page.putField(PageItemKeys.JD_LIST_PAGE.getKey(), modelList);
 
         return minSize;
+    }
+
+    private String getKeyword(String url) {
+        String keyword = null;
+        try {
+            String deUrl = URLDecoder.decode(url, "utf-8");
+            keyword = UrlUtil.getFromUrl(deUrl, "keyword");
+
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("unsupported_encoding_when_decoding_url:", e);
+            keyword = UrlUtil.getFromUrl(url, "keyword");
+        }
+        return keyword;
+    }
+
+    /**
+     * 列表页时，向爬取队列中添加详情页url以及评论url
+     * @param page page对象
+     */
+    private void addUrls(Page page) {
+        List<String> detailUrls = getDetailUrls(page);
+        List<String> commentUrls = getCommentUrls(page);
+        for (int i = 0; i < detailUrls.size(); i++) {
+            page.addTargetRequest(detailUrls.get(i));
+            for (int j = i * 3; j < i * 3 + 3; j++) {
+                page.addTargetRequest(commentUrls.get(j));
+            }
+        }
+    }
+
+    /**
+     * 添加详情页url
+     * @param page page对象
+     * @return 详情页url列表
+     */
+    private List<String> getDetailUrls(Page page) {
+        return page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
     }
 
     /**
      * 添加评论url
      * @param page page对象
+     * @return 评论url列表
      */
-    private void addCommentUrls(Page page) {
-        // get skuIds
-        List<String> detailUrls = page.getHtml().xpath("//*[@id=\"J_goodsList\"]/ul/li/div[1]/div[1]/a/@href").all();
-        List<String> skuIds = new ArrayList<>();
-        for (String url : detailUrls) {
-            System.out.println(url);
-            String skuId = url.replace(".html", "").replace("//item.jd.com/", "");
-            skuIds.add(skuId);
+    private List<String> getCommentUrls(Page page) {
+        List<String> skuIds = page.getResultItems().get("skuIds");
+        if (CollectionUtils.isEmpty(skuIds)) {
+            return new ArrayList<>();
         }
-        page.putField("skuIds", skuIds);
 
+        List<String> commentUrls = new ArrayList<>();
         // add comment links
         for (String skuId : skuIds) {
             List<String> commentTargets = getCommentRequests(skuId);
             if (CollectionUtils.isNotEmpty(commentTargets)) {
-                page.addTargetRequests(commentTargets);
+                commentUrls.addAll(commentTargets);
             }
         }
+        return commentUrls;
+    }
+
+    /**
+     * 处于列表页时，获取一共有多少页数
+     * @param page page对象
+     * @return 总共的页数
+     */
+    private int getPageNum(Page page, String keyword) {
+        SpiderAdvance advance;
+        if ((advance = SpiderAdvanceCache.get(keyword)) != null) {
+            return advance.getPageNum();
+        }
+
+        Document document = page.getHtml().getDocument();
+        Element bottom = document.getElementById("J_bottomPage");
+        if (bottom == null) {
+            return DEFAULT_PAGE_NUM;
+        }
+
+        Elements skip = bottom.getElementsByClass("p-skip");
+        if (skip == null || skip.size() == 0) {
+            return DEFAULT_PAGE_NUM;
+        }
+
+        Element em = skip.get(0).getElementsByTag("em").get(0);
+        String pageNum = em.getElementsByTag("b").get(0).text();
+        return Integer.parseInt(pageNum);
     }
 
     /**
@@ -275,7 +369,8 @@ public class JDProcessor implements PageProcessor {
         String url = rawUrl.get();
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
-        int nextPage = Integer.parseInt(params.get("page")) + 2;
+        int tempPage = Integer.parseInt(params.get("page"));
+        int nextPage = tempPage + 2;
         if (nextPage > maxPage) {
             SpiderAdvanceCache.remove(keyword);
             return null;
@@ -291,7 +386,7 @@ public class JDProcessor implements PageProcessor {
             advance.setKeyword(keyword);
         }
         advance.setPageNum(pageNum);
-        advance.setTemp((nextPage + 1) / 2);
+        advance.setTemp((tempPage + 1) / 2);
         SpiderAdvanceCache.put(keyword, advance);
 
         return url;

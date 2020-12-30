@@ -14,6 +14,9 @@ public class JDModel {
     @Field("keyword")
     private String keyword;
 
+    @Field("skuId")
+    private String skuId;
+
     @Field("title")
     private String title;
 
@@ -29,6 +32,9 @@ public class JDModel {
     @Field("icon")
     private String icon;
 
+    @Field("productClass")
+    private String productClass;
+
     @Field("commentList")
     private List<JDComment> commentList;
 
@@ -36,13 +42,31 @@ public class JDModel {
     public String toString() {
         return "JDModel{" +
                 "keyword='" + keyword + '\'' +
+                ", skuId='" + skuId + '\'' +
                 ", title='" + title + '\'' +
                 ", price='" + price + '\'' +
                 ", shop='" + shop + '\'' +
                 ", sellCount='" + sellCount + '\'' +
                 ", icon='" + icon + '\'' +
+                ", productClass='" + productClass + '\'' +
                 ", commentList=" + commentList +
                 '}';
+    }
+
+    public String getSkuId() {
+        return skuId;
+    }
+
+    public void setSkuId(String skuId) {
+        this.skuId = skuId;
+    }
+
+    public String getProductClass() {
+        return productClass;
+    }
+
+    public void setProductClass(String productClass) {
+        this.productClass = productClass;
     }
 
     public String getKeyword() {

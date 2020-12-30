@@ -35,9 +35,8 @@ public class JDSpiderTest {
                 ,new Proxy("61.153.251.150",22222)));
 
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=数码&suggest=1.def.0.base&wq=数码&page=1&s=1&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=数码&suggest=1.def.0.base&wq=数码&page=3&s=56&click=0")
                 .setDownloader(new SeleniumDownloader())
-                .setDownloader(httpClientDownloader)
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
                 .thread(1)

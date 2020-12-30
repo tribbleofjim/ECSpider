@@ -20,11 +20,15 @@ public class JDModelCache {
 
     private static final List<JDModel> modelList = new ArrayList<>();
 
-    public static void add(String skuId, JDModel model) {
+    public static void put(String skuId, JDModel model) {
         if (StringUtils.isBlank(skuId)) {
             return;
         }
         modelMap.put(skuId, model);
+    }
+
+    public static JDModel get(String skuId) {
+        return modelMap.getOrDefault(skuId, null);
     }
 
     public static void addComments(String skuId, List<JDComment> comments, boolean isEnd) {

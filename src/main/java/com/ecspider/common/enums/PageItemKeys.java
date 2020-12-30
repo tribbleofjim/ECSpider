@@ -5,7 +5,8 @@ package com.ecspider.common.enums;
  * on 2020/12/23
  */
 public enum PageItemKeys {
-    JD_PAGE_KEY("jdModelList")
+    JD_LIST_PAGE("jdModelList"),
+    JD_DETAIL_PAGE("jdDetailPage")
     ;
     private String key;
 

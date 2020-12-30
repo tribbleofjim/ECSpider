@@ -4,6 +4,7 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.JDModelCache;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,11 @@ public class JDPipeline implements Pipeline {
         if (mapResults == null || mapResults.isEmpty()) {
             return;
         }
-
         List<JDModel> modelList;
+        String productClass;
         List<String> skuIds;
-        if ((modelList = resultItems.get(PageItemKeys.JD_PAGE_KEY.getKey())) != null) {
+
+        if ((modelList = resultItems.get(PageItemKeys.JD_LIST_PAGE.getKey())) != null) {
             // list page
             if ((skuIds = resultItems.get("skuIds")) == null) {
                 return;
@@ -42,8 +44,20 @@ public class JDPipeline implements Pipeline {
 
             int size = Math.min(modelList.size(), skuIds.size());
             for (int i = 0; i < size; i++) {
-                JDModelCache.add(skuIds.get(i), modelList.get(i));
+                JDModelCache.put(skuIds.get(i), modelList.get(i));
             }
+
+        } else if ((productClass = resultItems.get(PageItemKeys.JD_DETAIL_PAGE.getKey())) != null) {
+            String skuId = resultItems.get("skuId");
+            if (StringUtils.isBlank(skuId)) {
+                return;
+            }
+            JDModel model = JDModelCache.get(skuId);
+            if (model == null) {
+                return;
+            }
+            model.setProductClass(productClass);
+            JDModelCache.put(skuId, model);
 
         } else {
             List<JDComment> commentList;

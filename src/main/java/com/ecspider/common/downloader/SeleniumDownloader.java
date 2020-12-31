@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class SeleniumDownloader implements Downloader {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeleniumDownloader.class);
 
-    private WebDriverPool webDriverPool = new WebDriverPool();
+    private final WebDriverPool webDriverPool = new WebDriverPool();
 
     public Page download(Request request, Task task) {
         WebDriver webDriver;

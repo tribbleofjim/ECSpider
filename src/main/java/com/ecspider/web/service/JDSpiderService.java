@@ -50,7 +50,6 @@ public class JDSpiderService {
         }
         String url;
         url = UrlUtil.addParamToUrl(BASE_URL, "keyword", keyword);
-        url = UrlUtil.addParamToUrl(url, "suggest", "1.def.0.base");
         url = UrlUtil.addParamToUrl(url, "wq", keyword);
         url = UrlUtil.addParamToUrl(url, "page", String.valueOf(startPage * 2 - 1));
         if (startPage == 1) {

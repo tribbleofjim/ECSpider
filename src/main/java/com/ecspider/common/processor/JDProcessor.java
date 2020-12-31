@@ -4,7 +4,7 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
-import com.ecspider.common.SpiderAdvanceCache;
+import com.ecspider.web.SpiderAdvanceCache;
 import com.ecspider.web.model.SpiderAdvance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,15 +80,11 @@ public class JDProcessor implements PageProcessor {
     private void doWithListPage(Page page) {
         putSkuIdsToPage(page);
         int pageSize = grabProductDetails(page);
-        addUrls(page);
 
         String url = page.getUrl().get();
         String keyword = getKeyword(url);
         int pageNum = getPageNum(page, keyword);
-        String nextUrl = getNextPageRequest(page, keyword, pageNum, pageSize);
-        if (nextUrl != null) {
-            page.addTargetRequest(nextUrl);
-        }
+        addUrls(page, keyword, pageNum, pageSize);
     }
 
     /**
@@ -120,7 +116,9 @@ public class JDProcessor implements PageProcessor {
 
         page.putField("skuId", page.getUrl().get()
                 .replace(".html", "").replace("https://item.jd.com/", ""));
-        page.putField(PageItemKeys.JD_DETAIL_PAGE.getKey(), builder.toString());
+        String productClass = builder.toString();
+        productClass = productClass.substring(0, productClass.length() - 1);
+        page.putField(PageItemKeys.JD_DETAIL_PAGE.getKey(), productClass);
     }
 
     /**
@@ -155,6 +153,10 @@ public class JDProcessor implements PageProcessor {
         List<String> contents = contentSelector.selectList(text);
         minSize = Math.min(minSize, contents.size());
 
+        JsonPathSelector nicknameSelector = new JsonPathSelector("$.comments[*].nickname");
+        List<String> nicknames = nicknameSelector.selectList(text);
+        minSize = Math.min(minSize, nicknames.size());
+
         JsonPathSelector scoreSelector = new JsonPathSelector("$.comments[*].score");
         List<String> scores = scoreSelector.selectList(text);
         minSize = Math.min(minSize, scores.size());
@@ -170,6 +172,7 @@ public class JDProcessor implements PageProcessor {
         for (int i = 0; i < minSize; i++) {
             JDComment comment = new JDComment();
             comment.setContent(contents.get(i));
+            comment.setNickname(nicknames.get(i));
             comment.setProductType(productSizes.get(i));
             comment.setStar(Integer.parseInt(scores.get(i)));
             comment.setTime(creationTimes.get(i));
@@ -295,15 +298,22 @@ public class JDProcessor implements PageProcessor {
      * 列表页时，向爬取队列中添加详情页url以及评论url
      * @param page page对象
      */
-    private void addUrls(Page page) {
+    private void addUrls(Page page, String keyword, int pageNum, int pageSize) {
         List<String> detailUrls = getDetailUrls(page);
         List<String> commentUrls = getCommentUrls(page);
+        String nextUrl = getNextPageRequest(page, keyword, pageNum, pageSize);
+
+        List<String> urls = new ArrayList<>();
         for (int i = 0; i < detailUrls.size(); i++) {
-            page.addTargetRequest(detailUrls.get(i));
+            urls.add(detailUrls.get(i));
             for (int j = i * 3; j < i * 3 + 3; j++) {
-                page.addTargetRequest(commentUrls.get(j));
+                urls.add(commentUrls.get(j));
             }
         }
+        if (nextUrl != null) {
+            urls.add(nextUrl);
+        }
+        page.addTargetRequests(urls);
     }
 
     /**
@@ -345,7 +355,9 @@ public class JDProcessor implements PageProcessor {
     private int getPageNum(Page page, String keyword) {
         SpiderAdvance advance;
         if ((advance = SpiderAdvanceCache.get(keyword)) != null) {
-            return advance.getPageNum();
+            if (advance.getPageNum() > 0) {
+                return advance.getPageNum();
+            }
         }
 
         Document document = page.getHtml().getDocument();
@@ -360,8 +372,8 @@ public class JDProcessor implements PageProcessor {
         }
 
         Element em = skip.get(0).getElementsByTag("em").get(0);
-        String pageNum = em.getElementsByTag("b").get(0).text();
-        return Integer.parseInt(pageNum);
+        String pageNumStr = em.getElementsByTag("b").get(0).text();
+        return Integer.parseInt(pageNumStr);
     }
 
     /**
@@ -388,6 +400,12 @@ public class JDProcessor implements PageProcessor {
         url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
         url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
 
+        setAdvance(keyword, pageNum, tempPage);
+
+        return url;
+    }
+
+    private void setAdvance(String keyword, int pageNum, int tempPage) {
         // show to front page
         SpiderAdvance advance;
         if ((advance = SpiderAdvanceCache.get(keyword)) == null) {
@@ -397,8 +415,6 @@ public class JDProcessor implements PageProcessor {
         advance.setPageNum(pageNum);
         advance.setTemp((tempPage + 1) / 2);
         SpiderAdvanceCache.put(keyword, advance);
-
-        return url;
     }
 
     /**

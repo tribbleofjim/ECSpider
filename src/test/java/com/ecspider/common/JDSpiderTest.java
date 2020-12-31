@@ -6,6 +6,7 @@ import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
 import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.UrlUtil;
+import com.ecspider.web.SpiderExecutorPool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author lyifee
@@ -35,7 +37,7 @@ public class JDSpiderTest {
                 ,new Proxy("61.153.251.150",22222)));
 
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=数码&suggest=1.def.0.base&wq=数码&page=3&s=56&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=5&s=116&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
@@ -78,5 +80,30 @@ public class JDSpiderTest {
     @Test
     public void configUtilTest() {
         System.out.println(ConfigUtil.getValue("application.yml", "props.driver.path"));
+    }
+
+    @Test
+    public void substringTest() {
+        String productClass = "手机通讯-手机-手机-小米（MI）-";
+        productClass = productClass.substring(0, productClass.length() - 1);
+        System.out.println(productClass);
+    }
+
+    @Test
+    public void executorTest() {
+        ExecutorService spiderPool = SpiderExecutorPool.getSpiderPool();
+        spiderPool.execute(() -> {
+            int i = 0;
+            Thread temp = Thread.currentThread();
+            while(!temp.isInterrupted()) {
+                System.out.println(i);
+                i++;
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

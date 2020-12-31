@@ -9,7 +9,7 @@ import java.util.List;
  * @author lyifee
  * on 2020/12/23
  */
-@Document(collection = "myJDdata")
+@Document(collection = "jdData")
 public class JDModel {
     @Field("keyword")
     private String keyword;

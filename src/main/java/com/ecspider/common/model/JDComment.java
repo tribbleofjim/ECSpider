@@ -11,6 +11,11 @@ public class JDComment {
     private Integer star;
 
     /**
+     * 评价的买家id
+     */
+    private String nickname;
+
+    /**
      * 评价的文本内容
      */
     private String content;
@@ -29,6 +34,7 @@ public class JDComment {
     public String toString() {
         return "JDComment{" +
                 "star=" + star +
+                ", nickname='" + nickname + '\'' +
                 ", content='" + content + '\'' +
                 ", productType='" + productType + '\'' +
                 ", time='" + time + '\'' +
@@ -41,6 +47,14 @@ public class JDComment {
 
     public void setStar(Integer star) {
         this.star = star;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getContent() {

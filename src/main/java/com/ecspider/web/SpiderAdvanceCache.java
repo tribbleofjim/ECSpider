@@ -1,4 +1,4 @@
-package com.ecspider.common;
+package com.ecspider.web;
 
 import com.ecspider.web.model.SpiderAdvance;
 

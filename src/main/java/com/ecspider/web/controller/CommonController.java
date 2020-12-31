@@ -1,6 +1,6 @@
 package com.ecspider.web.controller;
 
-import com.ecspider.common.SpiderAdvanceCache;
+import com.ecspider.web.SpiderAdvanceCache;
 import com.ecspider.web.model.Result;
 import com.ecspider.web.model.SpiderAdvance;
 import com.ecspider.web.service.CommonService;

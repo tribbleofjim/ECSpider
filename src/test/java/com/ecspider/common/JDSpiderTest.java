@@ -10,11 +10,14 @@ import com.ecspider.web.SpiderExecutorPool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
+import us.codecraft.webmagic.scheduler.RedisScheduler;
+import us.codecraft.webmagic.scheduler.Scheduler;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -29,6 +32,9 @@ public class JDSpiderTest {
     @Autowired
     private JDPipeline jdPipeline;
 
+    @Autowired
+    private JedisPool jedisPool;
+
     @Test
     public void jdProcessTest() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
@@ -39,6 +45,7 @@ public class JDSpiderTest {
         Spider.create(new JDProcessor())
                 .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=5&s=116&click=0")
                 .setDownloader(new SeleniumDownloader())
+                .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(jdPipeline)
                 .thread(1)

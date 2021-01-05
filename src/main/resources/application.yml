@@ -3,6 +3,14 @@ spring:
     mongodb:
       host: 127.0.0.1
       database: test
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+    jedis:
+      pool:
+        max-idle: 50
+        max-wait: 5000
 props:
   driver:
     path: src/main/resources/chromedriver

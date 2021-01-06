@@ -17,7 +17,6 @@ import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
-import us.codecraft.webmagic.scheduler.Scheduler;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

@@ -64,4 +64,12 @@ public class Result {
     public void setSuccess(Boolean success) {
         this.success = success;
     }
+
+    public Object getModel() {
+        return model;
+    }
+
+    public void setModel(Object model) {
+        this.model = model;
+    }
 }

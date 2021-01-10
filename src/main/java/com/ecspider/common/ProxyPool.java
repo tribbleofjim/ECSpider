@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.RequestUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.proxy.Proxy;
-import us.codecraft.webmagic.selector.JsonPathSelector;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +28,13 @@ public class ProxyPool {
     @Autowired
     private RequestSender requestSender;
 
-    private final String proxyPoolSite = "http://101.37.89.200";
+    private String proxyPoolSite;
 
-    private final String proxyPoolPort = "5000";
+    private String proxyPoolPort;
 
     public ProxyPool() {
-        // proxyPoolSite = ConfigUtil.getValueToString("application.yml", "props.proxypool.site");
-        // proxyPoolPort = ConfigUtil.getValueToString("application.yml", "props.proxypool.port");
+        proxyPoolSite = ConfigUtil.getValueToString("application.yml", "props.proxypool.site");
+        proxyPoolPort = ConfigUtil.getValueToString("application.yml", "props.proxypool.port");
     }
 
     public Proxy getProxy() {
@@ -96,6 +93,22 @@ public class ProxyPool {
         String host = params[0];
         String port = params[1];
         return new Proxy(host, Integer.parseInt(port));
+    }
+
+    public String getProxyPoolSite() {
+        return proxyPoolSite;
+    }
+
+    public void setProxyPoolSite(String proxyPoolSite) {
+        this.proxyPoolSite = proxyPoolSite;
+    }
+
+    public String getProxyPoolPort() {
+        return proxyPoolPort;
+    }
+
+    public void setProxyPoolPort(String proxyPoolPort) {
+        this.proxyPoolPort = proxyPoolPort;
     }
 
 }

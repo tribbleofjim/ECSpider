@@ -14,3 +14,6 @@ spring:
 props:
   driver:
     path: src/main/resources/chromedriver
+  proxypool:
+    site: http://101.37.89.200
+    port: 5000

@@ -40,6 +40,9 @@ public class JDSpiderTest {
     @Autowired
     private RequestSender requestSender;
 
+    @Autowired
+    private ProxyPool proxyPool;
+
     @Test
     public void jdProcessTest() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
@@ -124,5 +127,12 @@ public class JDSpiderTest {
         Request request = new Request("http://101.37.89.200:5000/get/");
         HttpUriRequest uriRequest = requestSender.getHttpUriRequest(request);
         requestSender.request(uriRequest);
+    }
+
+    @Test
+    public void proxyPoolTest() {
+        Proxy proxy = proxyPool.getProxy();
+        System.out.println("proxy host : " + proxy.getHost());
+        System.out.println("proxy port : " + proxy.getPort());
     }
 }

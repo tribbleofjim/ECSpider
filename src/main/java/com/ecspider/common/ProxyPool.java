@@ -110,5 +110,4 @@ public class ProxyPool {
     public void setProxyPoolPort(String proxyPoolPort) {
         this.proxyPoolPort = proxyPoolPort;
     }
-
 }

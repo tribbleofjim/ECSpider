@@ -59,7 +59,7 @@ public class ConfigUtil {
             }else {
                 String g;
                 String keyChild;
-                String v1 = (String)value;
+                String v1 = String.valueOf(value);
                 for(Matcher m = p1.matcher(v1); m.find(); value = v1.replace(g, (String)getValue(keyChild))) {
                     g = m.group();
                     keyChild = g.replaceAll("\\$\\{", "").replaceAll("\\}", "");
@@ -88,7 +88,7 @@ public class ConfigUtil {
      * @return String
      */
     public static String getValueToString(String fileName , String key){
-        return (String)getValue(fileName , key);
+        return String.valueOf(getValue(fileName , key));
     }
 
 }

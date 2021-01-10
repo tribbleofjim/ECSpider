@@ -23,6 +23,7 @@ import us.codecraft.webmagic.scheduler.RedisScheduler;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -131,8 +132,10 @@ public class JDSpiderTest {
 
     @Test
     public void proxyPoolTest() {
-        Proxy proxy = proxyPool.getProxy();
-        System.out.println("proxy host : " + proxy.getHost());
-        System.out.println("proxy port : " + proxy.getPort());
+        List<Proxy> proxyList = proxyPool.getProxyList();
+        for (Proxy proxy : proxyList) {
+            System.out.println("proxy host : " + proxy.getHost());
+            System.out.println("proxy port : " + proxy.getPort());
+        }
     }
 }

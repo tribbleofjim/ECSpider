@@ -52,7 +52,7 @@ public class JDSpiderTest {
                 ,new Proxy("61.153.251.150",22222)));
 
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=5&s=116&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=7&s=176&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(new ConsolePipeline())

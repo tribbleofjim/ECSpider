@@ -7,10 +7,12 @@ import com.ecspider.common.processor.JDProcessor;
 import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.UrlUtil;
 import com.ecspider.web.SpiderExecutorPool;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import redis.clients.jedis.JedisPool;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
@@ -18,6 +20,7 @@ import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +36,9 @@ public class JDSpiderTest {
 
     @Autowired
     private JedisPool jedisPool;
+
+    @Autowired
+    private RequestSender requestSender;
 
     @Test
     public void jdProcessTest() {
@@ -111,5 +117,12 @@ public class JDSpiderTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void requestTest() throws IOException {
+        Request request = new Request("http://101.37.89.200:5000/get/");
+        HttpUriRequest uriRequest = requestSender.getHttpUriRequest(request);
+        requestSender.request(uriRequest);
     }
 }

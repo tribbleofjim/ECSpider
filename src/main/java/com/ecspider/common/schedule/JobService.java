@@ -32,8 +32,8 @@ public class JobService {
 
         //构建job信息
         String clazz = quartzJob.getJobClazz();
-        Class<?> jobClazz = Class.forName(clazz);
-        jobDetail = JobBuilder.newJob((Class<? extends Job>) jobClazz).withIdentity(quartzJob.getJobName(), quartzJob.getJobClazz()).build();
+        Class<? extends Job> jobClazz = (Class<? extends Job>) Class.forName(clazz);
+        jobDetail = JobBuilder.newJob(jobClazz).withIdentity(quartzJob.getJobName(), quartzJob.getJobClazz()).build();
 
         //表达式调度构建器(即任务执行的时间,不立即执行)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzJob.getCronExpression()).withMisfireHandlingInstructionDoNothing();

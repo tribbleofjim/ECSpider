@@ -2,7 +2,10 @@ spring:
   data:
     mongodb:
       host: 127.0.0.1
-      database: test
+      port: 27017
+      database: data
+      name: user
+      password: mydata
   redis:
     host: 127.0.0.1
     port: 6379

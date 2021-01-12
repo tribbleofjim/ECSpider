@@ -2,6 +2,7 @@ package com.ecspider.common.schedule.spider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ecspider.common.schedule.JobMapDataKey;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -26,6 +27,20 @@ import us.codecraft.webmagic.processor.PageProcessor;
  *     }
  * }
  *
+ * 或者
+ * {
+ *     "spiderInfo": {
+ *          "processor" : "com.ecspider.common.processor.JDProcessor", // 必填
+ *          "pipeline" : "com.ecspider.common.pipeline.JDPipeline", // 必填
+ *          "urls" : "https://www.sojson.com/editor.html, https://blog.csdn.net/qq_123456/article/details/654321", // 必填
+ *          "uuid" : "jd.com", // 必填
+ *          "downloader" : "com.ecspider.common.downloader.SeleniumDownloader", // 可选
+ *          "threadNum" : 1, // 必填
+ *          "maintainTime" : 60 // 必填
+ *     }
+ * }
+ *
+ *
  * @author lyifee
  * on 2021/1/11
  */
@@ -39,7 +54,7 @@ public class SpiderJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
-        String spiderInfo = String.valueOf(jobDataMap.get("spiderInfo"));
+        String spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.SPIDER_INFO.getKey()));
         if (timedSpider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
             buildSpider(jobExecutionContext);
         }
@@ -49,7 +64,7 @@ public class SpiderJob implements Job {
     private void buildSpider(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
         String spiderInfo;
-        if ((spiderInfo = String.valueOf(jobDataMap.get("spiderInfo"))) == null || spiderInfo.equals("null")) {
+        if ((spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.SPIDER_INFO.getKey()))) == null || spiderInfo.equals("null")) {
             LOGGER.error("no_spider_info");
             if (StringUtils.isBlank(this.spiderInfo)) {
                 return;
@@ -59,21 +74,21 @@ public class SpiderJob implements Job {
         this.spiderInfo = spiderInfo;
 
         JSONObject spiderJson = JSON.parseObject(spiderInfo);
-        String processorClass = String.valueOf(spiderJson.get("processor"));
-        String pipelineClass = String.valueOf(spiderJson.get("pipeline"));
-        String urlString = String.valueOf(spiderJson.get("urls"));
-        String uuid = String.valueOf(spiderJson.get("uuid"));
-        String downloaderClass = String.valueOf(spiderJson.get("downloader"));
-        int threadNum = Integer.parseInt(String.valueOf(spiderJson.get("threadNum")));
+        String processorClass = String.valueOf(spiderJson.get(JobMapDataKey.PROCESSOR.getKey()));
+        String pipelineClass = String.valueOf(spiderJson.get(JobMapDataKey.PIPELINE.getKey()));
+        String urlString = String.valueOf(spiderJson.get(JobMapDataKey.URLS.getKey()));
+        String uuid = String.valueOf(spiderJson.get(JobMapDataKey.UUID.getKey()));
+        String downloaderClass = String.valueOf(spiderJson.get(JobMapDataKey.DOWNLOADER.getKey()));
+        int threadNum = Integer.parseInt(String.valueOf(spiderJson.get(JobMapDataKey.THREAD_NUM.getKey())));
 
         int maintain;
         String maintainType = null;
-        if (spiderJson.containsKey("maintainUrlNum")) {
-            maintainType = "maintainUrlNum";
+        if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_URL_NUM.getKey())) {
+            maintainType = JobMapDataKey.MAINTAIN_URL_NUM.getKey();
             maintain = Integer.parseInt((String) spiderJson.get(maintainType));
 
-        } else if (spiderJson.containsKey("maintainTime")){
-            maintainType = "maintainTime";
+        } else if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_TIME.getKey())){
+            maintainType = JobMapDataKey.MAINTAIN_TIME.getKey();
             maintain = Integer.parseInt((String) spiderJson.get(maintainType));
 
         } else {
@@ -100,7 +115,7 @@ public class SpiderJob implements Job {
             if (maintainType == null) {
                 timedSpider = new TimedSpider(spider);
             } else {
-                if (maintainType.equals("maintainUrlNum")) {
+                if (maintainType.equals(JobMapDataKey.MAINTAIN_URL_NUM.getKey())) {
                     timedSpider = new TimedSpider(spider).maintainUrls(maintain);
                 } else {
                     timedSpider = new TimedSpider(spider).maintainTime(maintain);

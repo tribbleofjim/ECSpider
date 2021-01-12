@@ -12,6 +12,20 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 /**
+ * 执行定时spider的任务
+ * jobDataMap中必须提供的参数例子：
+ * {
+ *     "spiderInfo": {
+ *          "processor" : "com.ecspider.common.processor.JDProcessor", // 必填
+ *          "pipeline" : "com.ecspider.common.pipeline.JDPipeline", // 必填
+ *          "urls" : "https://www.sojson.com/editor.html, https://blog.csdn.net/qq_123456/article/details/654321", // 必填
+ *          "uuid" : "jd.com", // 必填
+ *          "downloader" : "com.ecspider.common.downloader.SeleniumDownloader", // 可选
+ *          "threadNum" : 1, // 必填
+ *          "maintainUrlNum" : 1000 // 必填
+ *     }
+ * }
+ *
  * @author lyifee
  * on 2021/1/11
  */
@@ -49,7 +63,8 @@ public class SpiderJob implements Job {
         String pipelineClass = String.valueOf(spiderJson.get("pipeline"));
         String urlString = String.valueOf(spiderJson.get("urls"));
         String uuid = String.valueOf(spiderJson.get("uuid"));
-        String downloaderClass = String.valueOf(spiderJson.get("processor"));
+        String downloaderClass = String.valueOf(spiderJson.get("downloader"));
+        int threadNum = Integer.parseInt(String.valueOf(spiderJson.get("threadNum")));
 
         int maintain;
         String maintainType = null;
@@ -65,7 +80,6 @@ public class SpiderJob implements Job {
             maintain = -1;
         }
 
-        int threadNum = Integer.parseInt(String.valueOf(spiderJson.get("threadNum")));
         try {
             PageProcessor processor = (PageProcessor) Class.forName(processorClass).newInstance();
             Pipeline pipeline = (Pipeline) Class.forName(pipelineClass).newInstance();

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * 定时spider
  * 提供可定时停止spider的接口
  * 停止规则有两种：
  * 1、启动后经过一定时间后停止爬取（maintainTime, 单位为minutes）

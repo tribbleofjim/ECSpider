@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * 提供按照规则启停一个spider的接口
- * 规则有两种：
+ * 提供可定时停止spider的接口
+ * 停止规则有两种：
  * 1、启动后经过一定时间后停止爬取（maintainTime, 单位为minutes）
  * 2、启动后爬取一定数目URL后停止爬取（urlNum）
  * 如果二者都设置，默认选取urlNum

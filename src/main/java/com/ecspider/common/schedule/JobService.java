@@ -130,8 +130,7 @@ public class JobService {
             //表达式调度构建器,不立即执行
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzJob.getCronExpression()).withMisfireHandlingInstructionDoNothing();
             //按新的cronExpression表达式重新构建trigger
-            trigger = trigger.getTriggerBuilder().withIdentity(triggerKey)
-                    .withSchedule(scheduleBuilder).build();
+            trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
             //修改参数
             if(!trigger.getJobDataMap().get("extraInfo").equals(quartzJob.getExtraInfo())) {
                 trigger.getJobDataMap().put("extraInfo",quartzJob.getExtraInfo());

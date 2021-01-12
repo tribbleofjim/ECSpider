@@ -3,10 +3,7 @@ package com.ecspider.common.schedule;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Spider;
@@ -23,9 +20,13 @@ public class SpiderJob implements Job {
 
     private Spider spider = null;
 
+    private String spiderInfo;
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        if (spider == null) {
+        JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
+        String spiderInfo = String.valueOf(jobDataMap.get("spiderInfo"));
+        if (spider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
             buildSpider(jobExecutionContext);
         }
         spider.run();
@@ -36,14 +37,19 @@ public class SpiderJob implements Job {
         String spiderInfo;
         if ((spiderInfo = String.valueOf(jobDataMap.get("spiderInfo"))) == null || spiderInfo.equals("null")) {
             LOGGER.error("no_spider_info");
-            return;
+            if (StringUtils.isBlank(this.spiderInfo)) {
+                return;
+            }
+            spiderInfo = this.spiderInfo;
         }
+        this.spiderInfo = spiderInfo;
 
         JSONObject spiderJson = JSON.parseObject(spiderInfo);
         String processorClass = String.valueOf(spiderJson.get("processor"));
         String pipelineClass = String.valueOf(spiderJson.get("pipeline"));
 
         String urlString = String.valueOf(spiderJson.get("urls"));
+        String uuid = String.valueOf(spiderJson.get("uuid"));
 
         String downloaderClass = String.valueOf(spiderJson.get("processor"));
 
@@ -56,6 +62,7 @@ public class SpiderJob implements Job {
                 downloader = (Downloader) Class.forName(downloaderClass).newInstance();
             }
             spider = Spider.create(processor)
+                    .setUUID(uuid)
                     .addUrl(String.valueOf(urlString))
                     .addPipeline(pipeline)
                     .thread(threadNum);
@@ -65,7 +72,7 @@ public class SpiderJob implements Job {
             }
 
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+            LOGGER.error("exception_when_building_spider:", e);
         }
     }
 }

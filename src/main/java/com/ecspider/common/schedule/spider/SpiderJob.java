@@ -1,4 +1,4 @@
-package com.ecspider.common.schedule;
+package com.ecspider.common.schedule.spider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,7 +18,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
 public class SpiderJob implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpiderJob.class);
 
-    private Spider spider = null;
+    private TimedSpider timedSpider = null;
 
     private String spiderInfo;
 
@@ -26,10 +26,10 @@ public class SpiderJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
         String spiderInfo = String.valueOf(jobDataMap.get("spiderInfo"));
-        if (spider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
+        if (timedSpider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
             buildSpider(jobExecutionContext);
         }
-        spider.run();
+        timedSpider.executeSpider();
     }
 
     private void buildSpider(JobExecutionContext jobExecutionContext) {
@@ -47,11 +47,23 @@ public class SpiderJob implements Job {
         JSONObject spiderJson = JSON.parseObject(spiderInfo);
         String processorClass = String.valueOf(spiderJson.get("processor"));
         String pipelineClass = String.valueOf(spiderJson.get("pipeline"));
-
         String urlString = String.valueOf(spiderJson.get("urls"));
         String uuid = String.valueOf(spiderJson.get("uuid"));
-
         String downloaderClass = String.valueOf(spiderJson.get("processor"));
+
+        int maintain;
+        String maintainType = null;
+        if (spiderJson.containsKey("maintainUrlNum")) {
+            maintainType = "maintainUrlNum";
+            maintain = Integer.parseInt((String) spiderJson.get(maintainType));
+
+        } else if (spiderJson.containsKey("maintainTime")){
+            maintainType = "maintainTime";
+            maintain = Integer.parseInt((String) spiderJson.get(maintainType));
+
+        } else {
+            maintain = -1;
+        }
 
         int threadNum = Integer.parseInt(String.valueOf(spiderJson.get("threadNum")));
         try {
@@ -61,7 +73,7 @@ public class SpiderJob implements Job {
             if (StringUtils.isNotBlank(downloaderClass)) {
                 downloader = (Downloader) Class.forName(downloaderClass).newInstance();
             }
-            spider = Spider.create(processor)
+            Spider spider = Spider.create(processor)
                     .setUUID(uuid)
                     .addUrl(String.valueOf(urlString))
                     .addPipeline(pipeline)
@@ -69,6 +81,16 @@ public class SpiderJob implements Job {
 
             if (downloader != null) {
                 spider.setDownloader(downloader);
+            }
+
+            if (maintainType == null) {
+                timedSpider = new TimedSpider(spider);
+            } else {
+                if (maintainType.equals("maintainUrlNum")) {
+                    timedSpider = new TimedSpider(spider).maintainUrls(maintain);
+                } else {
+                    timedSpider = new TimedSpider(spider).maintainTime(maintain);
+                }
             }
 
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {

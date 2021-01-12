@@ -28,7 +28,7 @@ public class JobService {
         if (!CronExpression.isValidExpression(quartzJob.getCronExpression())) {
             return "Illegal cron expression";   //表达式格式不正确
         }
-        JobDetail jobDetail=null;
+        JobDetail jobDetail = null;
 
         //构建job信息
         String clazz = quartzJob.getJobClazz();

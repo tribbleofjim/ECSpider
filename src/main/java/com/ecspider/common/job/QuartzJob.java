@@ -1,4 +1,4 @@
-package com.ecspider.common.schedule;
+package com.ecspider.common.job;
 
 /**
  * @author lyifee

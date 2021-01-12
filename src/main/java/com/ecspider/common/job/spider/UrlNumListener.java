@@ -1,4 +1,4 @@
-package com.ecspider.common.schedule.spider;
+package com.ecspider.common.job.spider;
 
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;

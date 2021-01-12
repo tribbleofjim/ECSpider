@@ -1,8 +1,8 @@
-package com.ecspider.common.schedule.spider;
+package com.ecspider.common.job.spider;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.ecspider.common.schedule.JobMapDataKey;
+import com.ecspider.common.job.JobMapDataKey;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 import org.slf4j.Logger;

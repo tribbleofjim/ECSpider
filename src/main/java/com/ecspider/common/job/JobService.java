@@ -1,9 +1,15 @@
 package com.ecspider.common.job;
 
 import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -13,22 +19,29 @@ import java.util.List;
  * on 2021/1/11
  */
 @Service
-public class JobService {
-    @Autowired
-    @Qualifier("scheduler")
-    private Scheduler scheduler;
+public class JobService implements InitializingBean {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
+
+    private final Scheduler scheduler;
+
+    public JobService() throws SchedulerException {
+        scheduler = StdSchedulerFactory.getDefaultScheduler();
+    }
+
+    public void start() throws SchedulerException {
+        scheduler.start();
+    }
 
     /**
      * 新建一个任务
      *
      */
-    public String addJob(QuartzJob quartzJob) throws Exception  {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date=df.parse(quartzJob.getStartTime());
+    public void addJob(QuartzJob quartzJob) throws Exception  {
         if (!CronExpression.isValidExpression(quartzJob.getCronExpression())) {
-            return "Illegal cron expression";   //表达式格式不正确
+            LOGGER.error("Illegal cron expression : {}", quartzJob.getCronExpression());
+            return;
         }
-        JobDetail jobDetail = null;
+        JobDetail jobDetail;
 
         //构建job信息
         String clazz = quartzJob.getJobClazz();
@@ -39,15 +52,15 @@ public class JobService {
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzJob.getCronExpression()).withMisfireHandlingInstructionDoNothing();
 
         //按新的cronExpression表达式构建一个新的trigger
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(quartzJob.getJobName(), quartzJob.getJobClazz()).startAt(date)
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(quartzJob.getJobName(), quartzJob.getJobClazz())
+                .startNow()
                 .withSchedule(scheduleBuilder).build();
 
         //传递参数
         if(quartzJob.getExtraInfo()!=null && !"".equals(quartzJob.getExtraInfo())) {
-            trigger.getJobDataMap().put("extraInfo",quartzJob.getExtraInfo());
+            trigger.getJobDataMap().put(JobMapDataKey.EXTRA_INFO.getKey(),quartzJob.getExtraInfo());
         }
         scheduler.scheduleJob(jobDetail, trigger);
-        return "success";
     }
 
     public List<QuartzJob> getAllJob() throws SchedulerException {
@@ -129,12 +142,15 @@ public class JobService {
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             //表达式调度构建器,不立即执行
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzJob.getCronExpression()).withMisfireHandlingInstructionDoNothing();
+
             //按新的cronExpression表达式重新构建trigger
             trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
+
             //修改参数
             if(!trigger.getJobDataMap().get("extraInfo").equals(quartzJob.getExtraInfo())) {
                 trigger.getJobDataMap().put("extraInfo",quartzJob.getExtraInfo());
             }
+
             //按新的trigger重新设置job执行
             scheduler.rescheduleJob(triggerKey, trigger);
             return "success";
@@ -142,5 +158,11 @@ public class JobService {
             return "job or trigger not exists";
         }
 
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        LOGGER.info("starting jobService...");
+        start();
     }
 }

@@ -23,7 +23,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  *          "uuid" : "jd.com", // 必填
  *          "downloader" : "com.ecspider.common.downloader.SeleniumDownloader", // 可选
  *          "threadNum" : 1, // 必填
- *          "maintainUrlNum" : 1000 // 必填
+ *          "maintainType" : 1000 // 必填
  *     }
  * }
  *
@@ -36,7 +36,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  *          "uuid" : "jd.com", // 必填
  *          "downloader" : "com.ecspider.common.downloader.SeleniumDownloader", // 可选
  *          "threadNum" : 1, // 必填
- *          "maintainTime" : 60 // 必填
+ *          "maintainType" : 60 // 必填
  *     }
  * }
  *
@@ -54,7 +54,7 @@ public class SpiderJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
-        String spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.SPIDER_INFO.getKey()));
+        String spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.EXTRA_INFO.getKey()));
         if (timedSpider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
             buildSpider(jobExecutionContext);
         }
@@ -64,7 +64,7 @@ public class SpiderJob implements Job {
     private void buildSpider(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
         String spiderInfo;
-        if ((spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.SPIDER_INFO.getKey()))) == null || spiderInfo.equals("null")) {
+        if ((spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.EXTRA_INFO.getKey()))) == null || spiderInfo.equals("null")) {
             LOGGER.error("no_spider_info");
             if (StringUtils.isBlank(this.spiderInfo)) {
                 return;
@@ -85,11 +85,11 @@ public class SpiderJob implements Job {
         String maintainType = null;
         if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_URL_NUM.getKey())) {
             maintainType = JobMapDataKey.MAINTAIN_URL_NUM.getKey();
-            maintain = Integer.parseInt((String) spiderJson.get(maintainType));
+            maintain = Integer.parseInt(String.valueOf(spiderJson.get(maintainType)));
 
         } else if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_TIME.getKey())){
             maintainType = JobMapDataKey.MAINTAIN_TIME.getKey();
-            maintain = Integer.parseInt((String) spiderJson.get(maintainType));
+            maintain = Integer.parseInt(String.valueOf(spiderJson.get(maintainType)));
 
         } else {
             maintain = -1;

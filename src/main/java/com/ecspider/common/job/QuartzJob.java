@@ -1,5 +1,7 @@
 package com.ecspider.common.job;
 
+import java.util.Date;
+
 /**
  * @author lyifee
  * on 2021/1/11
@@ -11,7 +13,7 @@ public class QuartzJob {
 
     private String jobClazz;  //QuartzJobBean类型的全限定名
 
-    private String startTime;  //任务开始时间
+    private Date startTime;  //任务开始时间
 
     private String cronExpression;  //corn表达式
 
@@ -41,11 +43,11 @@ public class QuartzJob {
         this.jobClazz = jobClazz;
     }
 
-    public String getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 

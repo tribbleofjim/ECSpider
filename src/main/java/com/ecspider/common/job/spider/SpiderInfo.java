@@ -5,6 +5,8 @@ package com.ecspider.common.job.spider;
  * on 2021/1/13
  */
 public class SpiderInfo {
+    private String spiderId;
+
     private String processor;
 
     private String pipeline;
@@ -18,6 +20,14 @@ public class SpiderInfo {
     private int threadNum;
 
     private int maintainUrlNum;
+
+    public String getSpiderId() {
+        return spiderId;
+    }
+
+    public void setSpiderId(String spiderId) {
+        this.spiderId = spiderId;
+    }
 
     public String getProcessor() {
         return processor;

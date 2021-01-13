@@ -16,7 +16,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  * 执行定时spider的任务
  * jobDataMap中必须提供的参数例子：
  * {
- *     "spiderInfo": {
+ *     "extraInfo": {
  *          "processor" : "com.ecspider.common.processor.JDProcessor", // 必填
  *          "pipeline" : "com.ecspider.common.pipeline.JDPipeline", // 必填
  *          "urls" : "https://www.sojson.com/editor.html, https://blog.csdn.net/qq_123456/article/details/654321", // 必填
@@ -29,7 +29,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  *
  * 或者
  * {
- *     "spiderInfo": {
+ *     "extraInfo": {
  *          "processor" : "com.ecspider.common.processor.JDProcessor", // 必填
  *          "pipeline" : "com.ecspider.common.pipeline.JDPipeline", // 必填
  *          "urls" : "https://www.sojson.com/editor.html, https://blog.csdn.net/qq_123456/article/details/654321", // 必填
@@ -47,33 +47,17 @@ import us.codecraft.webmagic.processor.PageProcessor;
 public class SpiderJob implements Job {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpiderJob.class);
 
-    private TimedSpider timedSpider = null;
-
-    private String spiderInfo;
+    private String extraInfo;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
-        String spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.EXTRA_INFO.getKey()));
-        if (timedSpider == null || this.spiderInfo == null || !this.spiderInfo.equals(spiderInfo)) {
-            buildSpider(jobExecutionContext);
-        }
+        TimedSpider timedSpider = buildSpider(jobExecutionContext);
+        assert timedSpider != null;
         timedSpider.executeSpider();
     }
 
-    private void buildSpider(JobExecutionContext jobExecutionContext) {
-        JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
-        String spiderInfo;
-        if ((spiderInfo = String.valueOf(jobDataMap.get(JobMapDataKey.EXTRA_INFO.getKey()))) == null || spiderInfo.equals("null")) {
-            LOGGER.error("no_spider_info");
-            if (StringUtils.isBlank(this.spiderInfo)) {
-                return;
-            }
-            spiderInfo = this.spiderInfo;
-        }
-        this.spiderInfo = spiderInfo;
-
-        JSONObject spiderJson = JSON.parseObject(spiderInfo);
+    private TimedSpider buildSpider(JobExecutionContext jobExecutionContext) {
+        JSONObject spiderJson = JSON.parseObject(extraInfo);
         String processorClass = String.valueOf(spiderJson.get(JobMapDataKey.PROCESSOR.getKey()));
         String pipelineClass = String.valueOf(spiderJson.get(JobMapDataKey.PIPELINE.getKey()));
         String urlString = String.valueOf(spiderJson.get(JobMapDataKey.URLS.getKey()));
@@ -112,6 +96,8 @@ public class SpiderJob implements Job {
                 spider.setDownloader(downloader);
             }
 
+            TimedSpider timedSpider;
+
             if (maintainType == null) {
                 timedSpider = new TimedSpider(spider);
             } else {
@@ -121,9 +107,19 @@ public class SpiderJob implements Job {
                     timedSpider = new TimedSpider(spider).maintainTime(maintain);
                 }
             }
+            return timedSpider;
 
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             LOGGER.error("exception_when_building_spider:", e);
         }
+        return null;
+    }
+
+    public String getExtraInfo() {
+        return extraInfo;
+    }
+
+    public void setExtraInfo(String extraInfo) {
+        this.extraInfo = extraInfo;
     }
 }

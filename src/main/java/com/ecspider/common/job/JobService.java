@@ -5,13 +5,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,7 +52,7 @@ public class JobService implements InitializingBean {
 
         //传递参数
         if(quartzJob.getExtraInfo()!=null && !"".equals(quartzJob.getExtraInfo())) {
-            trigger.getJobDataMap().put(JobMapDataKey.EXTRA_INFO.getKey(),quartzJob.getExtraInfo());
+            jobDetail.getJobDataMap().put(JobMapDataKey.EXTRA_INFO.getKey(), quartzJob.getExtraInfo());
         }
         scheduler.scheduleJob(jobDetail, trigger);
     }

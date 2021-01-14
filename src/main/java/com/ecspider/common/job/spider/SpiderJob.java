@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.Downloader;
+import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.scheduler.RedisScheduler;
 
 /**
  * 执行定时spider的任务
@@ -52,19 +54,20 @@ public class SpiderJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JSONObject spiderJson = JSON.parseObject(extraInfo);
-        String spiderId = spiderJson.getString(JobMapDataKey.SPIDER_ID.getKey());
+        String spiderId = spiderJson.getString(JobMapDataKey.UUID.getKey());
         TimedSpider timedSpider;
         if ((timedSpider = TimedSpiderContainer.get(spiderId)) != null) {
-            timedSpider.startSpider();
-
-        } else {
-            timedSpider = buildTimedSpiderFromJson(spiderJson);
-            if (timedSpider == null) {
-                return;
-            }
             timedSpider.executeSpider();
-            TimedSpiderContainer.put(spiderId, timedSpider);
+            return;
         }
+
+        timedSpider = buildTimedSpiderFromJson(spiderJson);
+        if (timedSpider == null) {
+            LOGGER.error("cannot_build_timed_spider_from_spiderJson:{}", spiderJson);
+            return;
+        }
+        TimedSpiderContainer.put(spiderId, timedSpider);
+        timedSpider.executeSpider();
     }
 
     private TimedSpider buildTimedSpiderFromJson(JSONObject spiderJson) {
@@ -100,6 +103,8 @@ public class SpiderJob implements Job {
                     .setUUID(uuid)
                     .addUrl(String.valueOf(urlString))
                     .addPipeline(pipeline)
+                    .addPipeline(new ConsolePipeline())
+                    .setScheduler(new RedisScheduler("127.0.0.1"))
                     .thread(threadNum);
 
             if (downloader != null) {

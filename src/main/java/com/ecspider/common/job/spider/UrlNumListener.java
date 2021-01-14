@@ -27,8 +27,11 @@ public class UrlNumListener implements SpiderListener {
     @Override
     public void onSuccess(Request request) {
         urlNum++;
-        if (urlNum >= stopNum) {
+        // 注意：此处可能会比stopNum多处理一条url，
+        // 因为spider设置停止标志的动作没能及时传递到主线程处，导致主线程会多从工作队列中取出一条url。
+        if (urlNum >= stopNum && spider.getStatus().equals(Spider.Status.Running)) {
             doStop();
+            urlNum = 0;
         }
     }
 

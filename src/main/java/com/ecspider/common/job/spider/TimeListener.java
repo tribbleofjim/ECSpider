@@ -20,23 +20,27 @@ public class TimeListener implements SpiderListener {
     public TimeListener(Spider spider, int maintainMinutes) {
         this.spider = spider;
         this.maintainMinutes = maintainMinutes;
-
-        Calendar now = Calendar.getInstance();
-        now.add(Calendar.MINUTE, maintainMinutes);
-        endTime = now.getTime();
+        this.endTime = getEndTimeFromNow();
     }
 
     @Override
     public void onSuccess(Request request) {
         Date now = new Date();
-        if (endTime.before(now)) {
+        if (endTime.before(now) && spider.getStatus().equals(Spider.Status.Running)) {
             spider.stop();
+            endTime = getEndTimeFromNow();
         }
     }
 
     @Override
     public void onError(Request request) {
 
+    }
+
+    private Date getEndTimeFromNow() {
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.MINUTE, maintainMinutes);
+        return now.getTime();
     }
 
     public Date getEndTime() {

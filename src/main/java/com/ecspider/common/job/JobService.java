@@ -2,10 +2,10 @@ package com.ecspider.common.job;
 
 import com.ecspider.common.job.model.QuartzJob;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -17,11 +17,8 @@ import java.util.List;
 public class JobService implements InitializingBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
 
-    private final Scheduler scheduler;
-
-    public JobService() throws SchedulerException {
-        scheduler = StdSchedulerFactory.getDefaultScheduler();
-    }
+    @Autowired
+    private Scheduler scheduler;
 
     public void start() throws SchedulerException {
         scheduler.start();

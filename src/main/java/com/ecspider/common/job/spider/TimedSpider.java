@@ -40,6 +40,14 @@ public class TimedSpider {
         if (spider == null) {
             return;
         }
+
+        // spider already executed and stopped
+        if (Spider.Status.Stopped.equals(spider.getStatus())) {
+            spider.start();
+            return;
+        }
+
+        // the first time spider executed
         if (maintainUrlNum > 0) {
             UrlNumListener urlNumListener = new UrlNumListener(spider, maintainUrlNum);
             spider.setSpiderListeners(new ArrayList<>(Collections.singletonList(urlNumListener)));
@@ -52,11 +60,6 @@ public class TimedSpider {
             UrlNumListener urlNumListener = new UrlNumListener(spider);
             spider.setSpiderListeners(new ArrayList<>(Collections.singletonList(urlNumListener)));
         }
-
         spider.run();
-    }
-
-    public void startSpider() {
-        spider.start();
     }
 }

@@ -23,17 +23,17 @@ public class JobTestBean implements InitializingBean {
         QuartzJob quartzJob = new QuartzJob();
         quartzJob.setJobName("test");
         quartzJob.setJobClazz("com.ecspider.common.job.spider.SpiderJob");
-        quartzJob.setCronExpression("0 0 0/3 * * ?");
+        quartzJob.setCronExpression("0 0/2 * * * ?");
         quartzJob.setStartTime(new Date());
 
         SpiderInfo spiderInfo = new SpiderInfo();
         spiderInfo.setProcessor("com.ecspider.common.processor.JDProcessor");
         spiderInfo.setPipeline("com.ecspider.common.pipeline.JDPipeline");
-        spiderInfo.setUrls("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=7&s=176&click=0");
+        spiderInfo.setUrls("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=3&s=56&click=0");
         spiderInfo.setUuid("jd.com");
         spiderInfo.setDownloader("com.ecspider.common.downloader.SeleniumDownloader");
         spiderInfo.setThreadNum(1);
-        spiderInfo.setMaintainUrlNum(10);
+        spiderInfo.setMaintainUrlNum(3);
 
         quartzJob.setExtraInfo(JSON.toJSONString(spiderInfo));
 

@@ -1,4 +1,4 @@
-package com.ecspider.common.job;
+package com.ecspider.common.job.model;
 
 import java.util.Date;
 

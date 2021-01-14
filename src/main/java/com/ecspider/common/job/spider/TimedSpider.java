@@ -55,4 +55,8 @@ public class TimedSpider {
 
         spider.run();
     }
+
+    public void startSpider() {
+        spider.start();
+    }
 }

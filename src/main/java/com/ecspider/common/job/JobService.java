@@ -1,5 +1,6 @@
 package com.ecspider.common.job;
 
+import com.ecspider.common.job.model.QuartzJob;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;

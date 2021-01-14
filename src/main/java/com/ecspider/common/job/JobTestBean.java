@@ -1,12 +1,10 @@
 package com.ecspider.common.job;
 
 import com.alibaba.fastjson.JSON;
-import com.ecspider.common.job.spider.SpiderInfo;
-import org.springframework.beans.BeansException;
+import com.ecspider.common.job.model.QuartzJob;
+import com.ecspider.common.job.model.SpiderInfo;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;

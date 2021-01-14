@@ -1,4 +1,4 @@
-package com.ecspider.common.job.spider;
+package com.ecspider.common.job.model;
 
 /**
  * @author lyifee

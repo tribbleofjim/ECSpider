@@ -51,29 +51,39 @@ public class SpiderJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        TimedSpider timedSpider = buildSpider(jobExecutionContext);
-        assert timedSpider != null;
-        timedSpider.executeSpider();
+        JSONObject spiderJson = JSON.parseObject(extraInfo);
+        String spiderId = spiderJson.getString(JobMapDataKey.SPIDER_ID.getKey());
+        TimedSpider timedSpider;
+        if ((timedSpider = TimedSpiderContainer.get(spiderId)) != null) {
+            timedSpider.startSpider();
+
+        } else {
+            timedSpider = buildTimedSpiderFromJson(spiderJson);
+            if (timedSpider == null) {
+                return;
+            }
+            timedSpider.executeSpider();
+            TimedSpiderContainer.put(spiderId, timedSpider);
+        }
     }
 
-    private TimedSpider buildSpider(JobExecutionContext jobExecutionContext) {
-        JSONObject spiderJson = JSON.parseObject(extraInfo);
-        String processorClass = String.valueOf(spiderJson.get(JobMapDataKey.PROCESSOR.getKey()));
-        String pipelineClass = String.valueOf(spiderJson.get(JobMapDataKey.PIPELINE.getKey()));
-        String urlString = String.valueOf(spiderJson.get(JobMapDataKey.URLS.getKey()));
-        String uuid = String.valueOf(spiderJson.get(JobMapDataKey.UUID.getKey()));
-        String downloaderClass = String.valueOf(spiderJson.get(JobMapDataKey.DOWNLOADER.getKey()));
-        int threadNum = Integer.parseInt(String.valueOf(spiderJson.get(JobMapDataKey.THREAD_NUM.getKey())));
+    private TimedSpider buildTimedSpiderFromJson(JSONObject spiderJson) {
+        String processorClass = spiderJson.getString(JobMapDataKey.PROCESSOR.getKey());
+        String pipelineClass = spiderJson.getString(JobMapDataKey.PIPELINE.getKey());
+        String urlString = spiderJson.getString(JobMapDataKey.URLS.getKey());
+        String uuid = spiderJson.getString(JobMapDataKey.UUID.getKey());
+        String downloaderClass = spiderJson.getString(JobMapDataKey.DOWNLOADER.getKey());
+        int threadNum = spiderJson.getInteger(JobMapDataKey.THREAD_NUM.getKey());
 
         int maintain;
         String maintainType = null;
         if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_URL_NUM.getKey())) {
             maintainType = JobMapDataKey.MAINTAIN_URL_NUM.getKey();
-            maintain = Integer.parseInt(String.valueOf(spiderJson.get(maintainType)));
+            maintain = spiderJson.getInteger(maintainType);
 
         } else if (spiderJson.containsKey(JobMapDataKey.MAINTAIN_TIME.getKey())){
             maintainType = JobMapDataKey.MAINTAIN_TIME.getKey();
-            maintain = Integer.parseInt(String.valueOf(spiderJson.get(maintainType)));
+            maintain = spiderJson.getInteger(maintainType);
 
         } else {
             maintain = -1;
@@ -97,7 +107,6 @@ public class SpiderJob implements Job {
             }
 
             TimedSpider timedSpider;
-
             if (maintainType == null) {
                 timedSpider = new TimedSpider(spider);
             } else {

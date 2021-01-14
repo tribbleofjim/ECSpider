@@ -5,6 +5,7 @@ package com.ecspider.common.job;
  * on 2021/1/12
  */
 public enum JobMapDataKey {
+    SPIDER_ID("spiderId"),
     EXTRA_INFO("extraInfo"),
     PROCESSOR("processor"),
     DOWNLOADER("downloader"),

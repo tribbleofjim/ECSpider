@@ -158,8 +158,8 @@ public class JDProcessor implements PageProcessor {
         minSize = Math.min(minSize, nicknames.size());
 
         JsonPathSelector plusSelector = new JsonPathSelector("$.comments[*].plusAvailable");
-        List<String> plus = nicknameSelector.selectList(text);
-        minSize = Math.min(minSize, nicknames.size());
+        List<String> plus = plusSelector.selectList(text);
+        minSize = Math.min(minSize, plus.size());
 
         JsonPathSelector scoreSelector = new JsonPathSelector("$.comments[*].score");
         List<String> scores = scoreSelector.selectList(text);

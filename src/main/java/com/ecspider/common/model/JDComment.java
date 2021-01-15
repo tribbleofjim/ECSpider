@@ -16,6 +16,11 @@ public class JDComment {
     private String nickname;
 
     /**
+     * 是否是超级会员
+     */
+    private Boolean isPlus;
+
+    /**
      * 评价的文本内容
      */
     private String content;
@@ -35,10 +40,19 @@ public class JDComment {
         return "JDComment{" +
                 "star=" + star +
                 ", nickname='" + nickname + '\'' +
+                ", isPlus=" + isPlus +
                 ", content='" + content + '\'' +
                 ", productType='" + productType + '\'' +
                 ", time='" + time + '\'' +
                 '}';
+    }
+
+    public Boolean getPlus() {
+        return isPlus;
+    }
+
+    public void setPlus(Boolean plus) {
+        isPlus = plus;
     }
 
     public Integer getStar() {

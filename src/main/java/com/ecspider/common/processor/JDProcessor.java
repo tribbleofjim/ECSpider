@@ -157,6 +157,10 @@ public class JDProcessor implements PageProcessor {
         List<String> nicknames = nicknameSelector.selectList(text);
         minSize = Math.min(minSize, nicknames.size());
 
+        JsonPathSelector plusSelector = new JsonPathSelector("$.comments[*].plusAvailable");
+        List<String> plus = nicknameSelector.selectList(text);
+        minSize = Math.min(minSize, nicknames.size());
+
         JsonPathSelector scoreSelector = new JsonPathSelector("$.comments[*].score");
         List<String> scores = scoreSelector.selectList(text);
         minSize = Math.min(minSize, scores.size());
@@ -176,6 +180,7 @@ public class JDProcessor implements PageProcessor {
             comment.setProductType(productSizes.get(i));
             comment.setStar(Integer.parseInt(scores.get(i)));
             comment.setTime(creationTimes.get(i));
+            comment.setPlus("201".equals(plus.get(i)));
             commentList.add(comment);
         }
 

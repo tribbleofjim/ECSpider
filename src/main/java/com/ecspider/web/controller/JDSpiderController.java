@@ -1,5 +1,6 @@
 package com.ecspider.web.controller;
 
+import com.ecspider.common.job.JobService;
 import com.ecspider.web.model.Result;
 import com.ecspider.web.service.JDSpiderService;
 import org.slf4j.Logger;
@@ -22,6 +23,9 @@ public class JDSpiderController {
     @Resource
     private JDSpiderService jdSpiderService;
 
+    @Resource
+    private JobService jobService;
+
     @RequestMapping("/spider")
     @ResponseBody
     public Result runJDSpider(@RequestParam(name = "keyword") String keyword,
@@ -39,5 +43,13 @@ public class JDSpiderController {
             LOGGER.error("error_starting_spider:", e);
             return Result.fail(String.format("启动异常，异常信息:%s", e.getMessage()));
         }
+    }
+
+    @RequestMapping
+    @ResponseBody
+    public Result runTimedSpider(@RequestParam(name = "keyword") String keyword,
+                                 @RequestParam(name = "threadNum") int threadNum,
+                                 @RequestParam(name = "startPage", required = false) Integer startPage) {
+        return Result.success();
     }
 }

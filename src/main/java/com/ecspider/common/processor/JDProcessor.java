@@ -47,7 +47,7 @@ public class JDProcessor implements PageProcessor {
             "Safari/537.31";
 
     private static final String COMMENT_URL = "https://club.jd.com/comment/productPageComments.action?" +
-            "callback=fetchJSON_comment98&productId=100009082466&score=3&sortType=6&page=0&pageSize=10&isShadowSku=0&fold=1";
+            "callback=fetchJSON_comment98&productId=100009082466&score=3&sortType=5&page=0&pageSize=10&isShadowSku=0&fold=1";
 
     private Site site = Site.me()
             .setRetryTimes(RETRY_TIMES)

@@ -43,7 +43,7 @@ public class JDSpiderService {
         SpiderAdvanceCache.put(keyword, spiderAdvance);
     }
 
-    private String getRootUrl(String keyword, int startPage) {
+    public String getRootUrl(String keyword, int startPage) {
         if (startPage < 1) {
             LOGGER.error("invalid_start_page");
             throw new RuntimeException();

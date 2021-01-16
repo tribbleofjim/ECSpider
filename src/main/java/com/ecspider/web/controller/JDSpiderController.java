@@ -1,6 +1,10 @@
 package com.ecspider.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.ecspider.common.job.JobService;
+import com.ecspider.common.job.model.QuartzJob;
+import com.ecspider.common.job.model.SpiderInfo;
+import com.ecspider.common.util.UrlUtil;
 import com.ecspider.web.model.Result;
 import com.ecspider.web.service.JDSpiderService;
 import org.slf4j.Logger;
@@ -11,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author lyifee
@@ -45,11 +51,38 @@ public class JDSpiderController {
         }
     }
 
-    @RequestMapping
+    @RequestMapping("/timedSpider")
     @ResponseBody
     public Result runTimedSpider(@RequestParam(name = "keyword") String keyword,
                                  @RequestParam(name = "threadNum") int threadNum,
-                                 @RequestParam(name = "startPage", required = false) Integer startPage) {
+                                 @RequestParam(name = "startPage", required = false) Integer startPage,
+                                 @RequestParam(name = "maintainUrl") int maintainUrl) throws Exception {
+        startTimedSpider(keyword, threadNum, startPage, maintainUrl);
         return Result.success();
+    }
+
+    private void startTimedSpider(String keyword, int threadNum, Integer startPage, int maintainUrl) throws Exception {
+        QuartzJob quartzJob = new QuartzJob();
+        quartzJob.setJobName("jd" + UUID.randomUUID().toString());
+        quartzJob.setJobClazz("com.ecspider.common.job.spider.SpiderJob");
+        quartzJob.setCronExpression("0 0/5 * * * ?");
+        quartzJob.setStartTime(new Date());
+
+        SpiderInfo spiderInfo = new SpiderInfo();
+        spiderInfo.setProcessor("com.ecspider.common.processor.JDProcessor");
+        spiderInfo.setPipeline("com.ecspider.common.pipeline.JDPipeline");
+        if (startPage == null) {
+            startPage = 1;
+        }
+        String url = jdSpiderService.getRootUrl(keyword, startPage);
+        spiderInfo.setUrls(url);
+        spiderInfo.setUuid("jd.com");
+        spiderInfo.setDownloader("com.ecspider.common.downloader.SeleniumDownloader");
+        spiderInfo.setThreadNum(threadNum);
+        spiderInfo.setMaintainUrlNum(maintainUrl);
+
+        quartzJob.setExtraInfo(JSON.toJSONString(spiderInfo));
+
+        jobService.addJob(quartzJob);
     }
 }

@@ -65,6 +65,41 @@
             </div>
         </fieldset>
     </div>
+    <!--/开启一个新的爬虫-->
+
+    <!--开启一个新的定时爬虫-->
+    <div class="layui-row">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>开启一个新的定时爬虫</legend>
+            <div class="layui-col-md8 layui-col-md-offset2">
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">关键词</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="timedKeyword" placeholder="请输入关键词" autocomplete="off" class="layui-input">
+                        </div>
+                        <label class="layui-form-label">线程数</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="timedThreadNum" placeholder="请输入线程数" autocomplete="off" class="layui-input">
+                        </div>
+                        <label class="layui-form-label">从第几页开始</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="timedStartPage" placeholder="请输入起始页号" autocomplete="off" class="layui-input">
+                        </div>
+                        <label class="layui-form-label">定时爬取页数</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="maintainUrl" placeholder="请输入定时爬取页数" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!--提交按钮-->
+            <div class="layui-col-md4 layui-col-md-offset6">
+                <button type="button" class="layui-btn" onclick="startTimedSpider()">开始爬取</button>
+            </div>
+        </fieldset>
+    </div>
+    <!--/开启一个新的定时爬虫-->
 
     <script type="text/javascript" src="/js/index.js"></script>
 

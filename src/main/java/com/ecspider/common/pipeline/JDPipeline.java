@@ -32,12 +32,13 @@ public class JDPipeline implements Pipeline {
     private final MongoClient mongoClient;
 
     public JDPipeline() {
+        String host = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.host");
         String username = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.username");
         String database = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.database");
         String password = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.password");
         List<ServerAddress> adds = new ArrayList<>();
         //ServerAddress()两个参数分别为 服务器地址 和 端口
-        ServerAddress serverAddress = new ServerAddress("localhost", 27017);
+        ServerAddress serverAddress = new ServerAddress(host, 27017);
         adds.add(serverAddress);
 
         List<MongoCredential> credentials = new ArrayList<>();

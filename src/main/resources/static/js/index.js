@@ -47,16 +47,23 @@ function startTimedSpider() {
 
     let maintainUrl = document.getElementById('maintainUrl').value;
     if (maintainUrl === null || maintainUrl === '') {
-            layer.msg('请输入爬取url数！');
-            return;
-        }
+        layer.msg('请输入爬取url数！');
+        return;
+    }
+
+    let cron_minute = document.getElementById('cron_minute').value;
+    let cron_hours = document.getElementById('cron_hours').value;
+    let cron = cron_hours + "h";
+    if (cron_hours === null || cron_hours === '') {
+        cron = cron_minute + "m";
+    }
 
     let xhr = new XMLHttpRequest();
     let url = "/timedSpider?keyword=" + keyword + "&threadNum=" + threadNum;
     if (startPage !== null) {
         url += "&startPage=" + startPage;
     }
-    url += "&maintainUrl=" + maintainUrl;
+    url += "&maintainUrl=" + maintainUrl + "&cron=" + cron;
     xhr.open('GET', url, true);
     xhr.onreadystatechange = function() {
         if (xhr.status == 200) {

@@ -7,6 +7,7 @@ import com.ecspider.common.job.model.SpiderInfo;
 import com.ecspider.common.util.UrlUtil;
 import com.ecspider.web.model.Result;
 import com.ecspider.web.service.JDSpiderService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -56,16 +57,23 @@ public class JDSpiderController {
     public Result runTimedSpider(@RequestParam(name = "keyword") String keyword,
                                  @RequestParam(name = "threadNum") int threadNum,
                                  @RequestParam(name = "startPage", required = false) Integer startPage,
-                                 @RequestParam(name = "maintainUrl") int maintainUrl) throws Exception {
-        startTimedSpider(keyword, threadNum, startPage, maintainUrl);
+                                 @RequestParam(name = "maintainUrl") int maintainUrl,
+                                 @RequestParam(name = "cron") String cron) throws Exception {
+        startTimedSpider(keyword, threadNum, startPage, maintainUrl, cron);
         return Result.success();
     }
 
-    private void startTimedSpider(String keyword, int threadNum, Integer startPage, int maintainUrl) throws Exception {
+    private void startTimedSpider(String keyword, int threadNum, Integer startPage, int maintainUrl, String rawCron) throws Exception {
         QuartzJob quartzJob = new QuartzJob();
         quartzJob.setJobName("jd" + UUID.randomUUID().toString());
         quartzJob.setJobClazz("com.ecspider.common.job.spider.SpiderJob");
-        quartzJob.setCronExpression("0 0/5 * * * ?");
+        String cron = getCron(rawCron);
+        if (StringUtils.isBlank(cron)) {
+            LOGGER.error("invalid_cron");
+            return;
+        }
+        System.out.println(cron);
+        quartzJob.setCronExpression(cron);
         quartzJob.setStartTime(new Date());
 
         SpiderInfo spiderInfo = new SpiderInfo();
@@ -84,5 +92,26 @@ public class JDSpiderController {
         quartzJob.setExtraInfo(JSON.toJSONString(spiderInfo));
 
         jobService.addJob(quartzJob);
+    }
+
+    private String getCron(String rawCron) {
+        // 5m / 4h
+        if (StringUtils.isBlank(rawCron)) {
+            LOGGER.error("invalid_rawCron : {}", rawCron);
+            return null;
+        }
+        String baseCron = "0 * * * * ?";
+        String num = "0/" + rawCron.substring(0, rawCron.length() - 1);
+        if (rawCron.endsWith("m")) {
+            return baseCron.replaceFirst("\\*", num);
+
+        } else if (rawCron.endsWith("h")){
+            String cron = baseCron.replaceFirst("\\*", "0");
+            cron = cron.replaceFirst("\\*", num);
+            return cron;
+
+        } else {
+            throw new RuntimeException("invalid_rawCron : " + rawCron);
+        }
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -65,7 +66,9 @@ public class JDSpiderController {
 
     private void startTimedSpider(String keyword, int threadNum, Integer startPage, int maintainUrl, String rawCron) throws Exception {
         QuartzJob quartzJob = new QuartzJob();
-        quartzJob.setJobName("jd" + UUID.randomUUID().toString());
+        int randomPlus = new Random().nextInt(100);
+
+        quartzJob.setJobName("jd" + randomPlus);
         quartzJob.setJobClazz("com.ecspider.common.job.spider.SpiderJob");
         String cron = getCron(rawCron);
         if (StringUtils.isBlank(cron)) {
@@ -84,7 +87,7 @@ public class JDSpiderController {
         }
         String url = jdSpiderService.getRootUrl(keyword, startPage);
         spiderInfo.setUrls(url);
-        spiderInfo.setUuid("jd.com");
+        spiderInfo.setUuid("jd.com" + randomPlus);
         spiderInfo.setDownloader("com.ecspider.common.downloader.SeleniumDownloader");
         spiderInfo.setThreadNum(threadNum);
         spiderInfo.setMaintainUrlNum(maintainUrl);

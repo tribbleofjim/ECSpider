@@ -3,10 +3,14 @@ package com.ecspider.common.job.spider;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ecspider.common.job.JobMapDataKey;
+import com.ecspider.common.util.ConfigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.Downloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
@@ -99,12 +103,13 @@ public class SpiderJob implements Job {
             if (StringUtils.isNotBlank(downloaderClass)) {
                 downloader = (Downloader) Class.forName(downloaderClass).newInstance();
             }
+
             Spider spider = Spider.create(processor)
                     .setUUID(uuid)
                     .addUrl(String.valueOf(urlString))
                     .addPipeline(pipeline)
                     .addPipeline(new ConsolePipeline())
-                    .setScheduler(new RedisScheduler("127.0.0.1"))
+                    .setScheduler(new RedisScheduler(getJedisPool()))
                     .thread(threadNum);
 
             if (downloader != null) {
@@ -127,6 +132,17 @@ public class SpiderJob implements Job {
             LOGGER.error("exception_when_building_spider:", e);
         }
         return null;
+    }
+
+    private JedisPool getJedisPool() {
+        String host = "127.0.0.1";
+        int port = 6379;
+        String password = ConfigUtil.getValueToString("application.yml", "spring.redis.password");
+        int timeout = Integer.parseInt(ConfigUtil.getValueToString("application.yml", "spring.redis.timeout"));
+
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+
+        return new JedisPool(jedisPoolConfig, host, port, timeout, password);
     }
 
     public String getExtraInfo() {

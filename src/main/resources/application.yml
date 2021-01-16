@@ -4,7 +4,7 @@ spring:
       host: 127.0.0.1
       port: 27017
       database: data
-      name: user
+      username: user
       password: mydata
   redis:
     host: 127.0.0.1
@@ -17,7 +17,7 @@ spring:
         max-wait: 5000
 props:
   driver:
-    path: src/main/resources/chromedriver
+    path: /usr/local/chromedriver
   proxypool:
     site: http://101.37.89.200
     port: 5000

@@ -20,7 +20,6 @@ import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -33,8 +32,6 @@ import java.util.concurrent.ExecutorService;
  */
 @SpringBootTest(classes = ECApplication.class)
 public class JDSpiderTest {
-    @Autowired
-    private JDPipeline jdPipeline;
 
     @Autowired
     private JedisPool jedisPool;
@@ -60,7 +57,7 @@ public class JDSpiderTest {
                 .setDownloader(new SeleniumDownloader())
                 .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(new ConsolePipeline())
-                .addPipeline(jdPipeline)
+                .addPipeline(new JDPipeline())
                 .thread(1)
                 .run();
     }
@@ -144,7 +141,7 @@ public class JDSpiderTest {
     }
 
     @Test
-    public void quartzTest() {
+    public void mongoTest() {
 
     }
 }

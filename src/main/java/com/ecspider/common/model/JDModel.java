@@ -1,41 +1,28 @@
 package com.ecspider.common.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.util.List;
 
 /**
  * @author lyifee
  * on 2020/12/23
  */
-@Document(collection = "jdData")
 public class JDModel {
-    @Field("keyword")
     private String keyword;
 
-    @Field("skuId")
     private String skuId;
 
-    @Field("title")
     private String title;
 
-    @Field("price")
     private String price;
 
-    @Field("shop")
     private String shop;
 
-    @Field("sellCount")
     private String sellCount;
 
-    @Field("icon")
     private String icon;
 
-    @Field("productClass")
     private String productClass;
 
-    @Field("commentList")
     private List<JDComment> commentList;
 
     @Override

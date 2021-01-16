@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * on 2020/12/24
  */
 public class JDModelCache {
-    public static final Integer CACHE_CAPACITY = 30;
+    public static final Integer CACHE_CAPACITY = 1;
 
     private static final Map<String, JDModel> modelMap = new ConcurrentHashMap<>();
 

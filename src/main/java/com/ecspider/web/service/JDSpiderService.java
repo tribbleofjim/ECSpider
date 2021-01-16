@@ -23,9 +23,6 @@ import java.util.concurrent.ExecutorService;
 public class JDSpiderService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JDSpiderService.class);
 
-    @Resource
-    private JDPipeline jdPipeline;
-
     private static final String BASE_URL = "https://search.jd.com/Search?";
 
     public void runJDSpider(String keyword, int threadNum, int startPage) {
@@ -34,7 +31,7 @@ public class JDSpiderService {
                 .addUrl(getRootUrl(keyword, startPage))
                 .setDownloader(new SeleniumDownloader())
                 .addPipeline(new ConsolePipeline())
-                .addPipeline(jdPipeline)
+                .addPipeline(new JDPipeline())
                 .thread(threadNum);
         spiderPool.execute(preparedSpider);
 

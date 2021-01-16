@@ -8,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import us.codecraft.webmagic.Spider;
@@ -139,9 +141,7 @@ public class SpiderJob implements Job {
         int port = 6379;
         String password = ConfigUtil.getValueToString("application.yml", "spring.redis.password");
         int timeout = Integer.parseInt(ConfigUtil.getValueToString("application.yml", "spring.redis.timeout"));
-
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-
         return new JedisPool(jedisPoolConfig, host, port, timeout, password);
     }
 

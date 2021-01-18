@@ -137,7 +137,7 @@ public class SpiderJob implements Job {
     }
 
     private JedisPool getJedisPool() {
-        String host = "127.0.0.1";
+        String host = ConfigUtil.getValueToString("application.yml", "spring.redis.host");
         int port = 6379;
         String password = ConfigUtil.getValueToString("application.yml", "spring.redis.password");
         int timeout = Integer.parseInt(ConfigUtil.getValueToString("application.yml", "spring.redis.timeout"));

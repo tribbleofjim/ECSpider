@@ -11,9 +11,7 @@
 
 目前做了一个简易的前端页面，可以看到当前大致的爬取进度、开启一个新的爬虫、开启一个新的定时爬虫。
 
-
-
-
+![index](/Users/lyifee/Projects/ECSpider/pictures/index.png)
 
 **反爬虫与定时任务**
 

@@ -29,7 +29,7 @@ public class SeleniumDownloader implements Downloader {
         try {
            webDriver = webDriverPool.get();
 
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("get_webDriver_from_pool_failed : ", e);
             return null;
         }

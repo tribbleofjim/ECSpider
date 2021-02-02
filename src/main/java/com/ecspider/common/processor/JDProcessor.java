@@ -213,27 +213,23 @@ public class JDProcessor implements PageProcessor {
         Document document = page.getHtml().getDocument();
         int minSize = Integer.MAX_VALUE;
         Elements titles = document.getElementsByClass("p-name p-name-type-2");
-        int titlesSize = titles.size();
-        minSize = Math.min(minSize, titlesSize);
+        minSize = Math.min(minSize, titles.size());
 
         Elements prices = document.getElementsByClass("p-price");
-        int pricesSize = prices.size();
-        minSize = Math.min(minSize, pricesSize);
+        minSize = Math.min(minSize, prices.size());
 
         List<JDModel> modelList = new ArrayList<>();
         Elements commits = document.getElementsByClass("p-commit");
-        int commitsSize = commits.size();
-        minSize = Math.min(minSize, commitsSize);
+        minSize = Math.min(minSize, commits.size());
 
         Elements shops = document.getElementsByClass("p-shop");
-        int shopsSize = shops.size();
-        minSize = Math.min(minSize, shopsSize);
+        minSize = Math.min(minSize, shops.size());
 
         Elements icons = document.getElementsByClass("p-icons");
-        int iconsSize = icons.size();
-        minSize = Math.min(minSize, iconsSize);
+        minSize = Math.min(minSize, icons.size());
 
         List<String> skuIds = page.getResultItems().get("skuIds");
+        minSize = Math.min(minSize, skuIds.size());
 
         for (int i = 0; i < minSize; i++) {
             JDModel jdModel = new JDModel();

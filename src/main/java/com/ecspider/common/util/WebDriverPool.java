@@ -55,6 +55,7 @@ public class WebDriverPool {
     public WebDriver get() throws InterruptedException {
         WebDriver driver = driverQueue.poll();
         if (driver != null) {
+            LOGGER.info("---get_webDriver---");
             return driver;
         }
 
@@ -80,7 +81,9 @@ public class WebDriverPool {
     }
 
     public void returnToPool(WebDriver webDriver) {
+        LOGGER.info("---start_return_to_pool---");
         if (!driverQueue.contains(webDriver)) {
+            LOGGER.info("---return_to_pool---");
             driverQueue.add(webDriver);
         }
     }

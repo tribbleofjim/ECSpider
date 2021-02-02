@@ -38,7 +38,8 @@ public class SeleniumDownloader implements Downloader {
         try {
             webDriver.get(request.getUrl());
             Thread.sleep(getSleepMillis());
-        } catch (InterruptedException e) {
+
+        } catch (Exception e) {
             LOGGER.error("webDriver_get_url_exception:", e);
         }
 

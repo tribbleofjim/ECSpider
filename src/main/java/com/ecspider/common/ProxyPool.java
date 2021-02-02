@@ -28,13 +28,17 @@ public class ProxyPool {
     @Autowired
     private RequestSender requestSender;
 
-    private String proxyPoolSite;
+    private String proxyPoolSite = "127.0.0.1";
 
-    private String proxyPoolPort;
+    private String proxyPoolPort = "8080";
 
     public ProxyPool() {
-        proxyPoolSite = ConfigUtil.getValueToString("application.yml", "props.proxypool.site");
-        proxyPoolPort = ConfigUtil.getValueToString("application.yml", "props.proxypool.port");
+        try {
+            proxyPoolSite = ConfigUtil.getValueToString("application.yml", "props.proxypool.site");
+            proxyPoolPort = ConfigUtil.getValueToString("application.yml", "props.proxypool.port");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     public Proxy getProxy() {

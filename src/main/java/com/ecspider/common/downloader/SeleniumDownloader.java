@@ -34,8 +34,10 @@ public class SeleniumDownloader implements Downloader {
             return null;
         }
 
+        WebDriver.Options manager = webDriver.manage();
         Page page = new Page();
         try {
+            manager.timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
             webDriver.get(request.getUrl());
             Thread.sleep(getSleepMillis());
 
@@ -43,7 +45,6 @@ public class SeleniumDownloader implements Downloader {
             LOGGER.error("webDriver_get_url_exception:", e);
         }
 
-        WebDriver.Options manager = webDriver.manage();
         Site site = task.getSite();
 
         // add cookies

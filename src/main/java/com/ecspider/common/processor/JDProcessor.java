@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webmaple.worker.annotation.MapleProcessor;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @author lyifee
  * on 2020/12/21
  */
+@MapleProcessor(site = "jd.search.com")
 public class JDProcessor implements PageProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JDProcessor.class);
 

@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webmaple.worker.annotation.MaplePipeline;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
@@ -26,6 +27,7 @@ import java.util.Map;
  * @author lyifee
  * on 2020/12/21
  */
+@MaplePipeline(site = "jd.search.com")
 public class JDPipeline implements Pipeline {
     Logger LOGGER = LoggerFactory.getLogger(JDPipeline.class);
 

@@ -18,3 +18,11 @@ spring:
 props:
   driver:
     path: /usr/local/chromedriver
+webmaple:
+  admin:
+    host: 101.37.89.200
+    port: 8080
+    heartbeat: heartbeat
+  worker:
+    port: 8080
+    package-path: org.webmaple.worker

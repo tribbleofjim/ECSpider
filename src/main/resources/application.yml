@@ -10,7 +10,7 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 10000
-    password: Pass*4
+    block-when-exhausted: true
     jedis:
       pool:
         max-idle: 50
@@ -25,4 +25,4 @@ webmaple:
     heartbeat: heartbeat
   worker:
     port: 8080
-    package-path: org.webmaple.worker
+    package-path: com.ecspider.common

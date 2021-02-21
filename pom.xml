@@ -19,6 +19,11 @@
             <artifactId>worker</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.webmaple</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- ===================== spring boot =================== -->
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot -->

@@ -4,7 +4,6 @@ import com.ecspider.ECApplication;
 import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
-import com.ecspider.common.job.JobService;
 import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.UrlUtil;
 import com.ecspider.web.SpiderExecutorPool;
@@ -41,9 +40,6 @@ public class JDSpiderTest {
 
     @Autowired
     private ProxyPool proxyPool;
-
-    @Autowired
-    private JobService jobService;
 
     @Test
     public void jdProcessTest() {

@@ -3,17 +3,19 @@ package com.ecspider.common.pipeline;
 import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
-import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.JDModelCache;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClientFactory;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webmaple.common.util.ConfigUtil;
 import org.webmaple.worker.annotation.MaplePipeline;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
@@ -38,18 +40,14 @@ public class JDPipeline implements Pipeline {
         String username = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.username");
         String database = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.database");
         String password = ConfigUtil.getValueToString("application.yml", "spring.data.mongodb.password");
-        List<ServerAddress> adds = new ArrayList<>();
-        //ServerAddress()两个参数分别为 服务器地址 和 端口
-        ServerAddress serverAddress = new ServerAddress(host, 27017);
-        adds.add(serverAddress);
 
-        List<MongoCredential> credentials = new ArrayList<>();
-        //MongoCredential.createScramSha1Credential()三个参数分别为 用户名 数据库名称 密码
-        MongoCredential mongoCredential = MongoCredential.createScramSha1Credential(username, database, password.toCharArray());
-        credentials.add(mongoCredential);
+        String sURI = String.format(
+                "mongodb://%s:%s@%s:%d/%s", username, password, host, 27017, database);
+
+        MongoClientURI uri = new MongoClientURI(sURI);
 
         //通过连接认证获取MongoDB连接
-        mongoClient = new MongoClient(adds, credentials);
+        mongoClient = new MongoClient(uri);
     }
 
     public void process(ResultItems resultItems, Task task) {

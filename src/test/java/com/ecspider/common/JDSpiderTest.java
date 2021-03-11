@@ -4,13 +4,15 @@ import com.ecspider.ECApplication;
 import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
-import com.ecspider.common.util.ConfigUtil;
 import com.ecspider.common.util.UrlUtil;
 import com.ecspider.web.SpiderExecutorPool;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.webmaple.common.network.RequestSender;
+import org.webmaple.common.util.ConfigUtil;
+import org.webmaple.common.util.RequestUtil;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -123,7 +125,7 @@ public class JDSpiderTest {
     @Test
     public void requestTest() throws IOException {
         Request request = new Request("http://101.37.89.200:5000/get/");
-        HttpUriRequest uriRequest = requestSender.getHttpUriRequest(request);
+        HttpUriRequest uriRequest = RequestUtil.getHttpUriRequest(request);
         requestSender.request(uriRequest);
     }
 

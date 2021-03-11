@@ -3,14 +3,15 @@ package com.ecspider.common;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ecspider.common.util.ConfigUtil;
-import com.ecspider.common.util.RequestUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.webmaple.common.network.RequestSender;
+import org.webmaple.common.util.ConfigUtil;
+import org.webmaple.common.util.RequestUtil;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.proxy.Proxy;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class ProxyPool {
     public Proxy getProxy() {
         String url = getUrl("get");
         Request request = new Request(url);
-        HttpUriRequest uriRequest = requestSender.getHttpUriRequest(request);
+        HttpUriRequest uriRequest = RequestUtil.getHttpUriRequest(request);
         try {
             CloseableHttpResponse response = requestSender.request(uriRequest);
             String text = RequestUtil.getResponseText(response);
@@ -61,7 +62,7 @@ public class ProxyPool {
     public List<Proxy> getProxyList() {
         String url = getUrl("get_all");
         Request request = new Request(url);
-        HttpUriRequest uriRequest = requestSender.getHttpUriRequest(request);
+        HttpUriRequest uriRequest = RequestUtil.getHttpUriRequest(request);
         try {
             CloseableHttpResponse response = requestSender.request(uriRequest);
             String text = RequestUtil.getResponseText(response);

@@ -3,6 +3,9 @@ package com.ecspider.common.util;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -79,6 +82,15 @@ public class UrlUtil {
 
     private static String getParamByKeyValue(String key, String value) {
         return key + "=" + value;
+    }
+
+
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        String url = "https://search.jd.com/Search?keyword=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&wq=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&page=3&s=61&click=0";
+
+        String deUrl = URLDecoder.decode(url, "utf-8");
+        String keyword = getFromUrl(deUrl, "keyword");
+        System.out.println(keyword);
     }
 
 }

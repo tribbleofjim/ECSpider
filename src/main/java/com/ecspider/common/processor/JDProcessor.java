@@ -355,7 +355,7 @@ public class JDProcessor implements PageProcessor {
      */
     private int getPageNum(Page page, String keyword) {
         SpiderAdvance advance;
-        if ((advance = SpiderAdvanceCache.get(keyword)) != null) {
+        if (keyword != null && (advance = SpiderAdvanceCache.get(keyword)) != null) {
             if (advance.getPageNum() > 0) {
                 return advance.getPageNum();
             }

@@ -231,47 +231,54 @@ public class JDProcessor implements PageProcessor {
         List<String> skuIds = page.getResultItems().get("skuIds");
         minSize = Math.min(minSize, skuIds.size());
 
-        for (int i = 0; i < minSize; i++) {
-            JDModel jdModel = new JDModel();
-            // get title
-            jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
+        try {
+            for (int i = 0; i < minSize; i++) {
+                JDModel jdModel = new JDModel();
+                // get title
+                jdModel.setTitle(titles.get(i).getElementsByTag("em").get(0).text());
 
-            // get price
-            String price = prices.get(i).getElementsByTag("i").get(0).text();
-            if (price == null) {
-                LOGGER.warn("jd_spider_processor_excption:price is null");
-                continue;
+                // get price
+                String price = prices.get(i).getElementsByTag("i").get(0).text();
+                if (price == null) {
+                    LOGGER.warn("jd_spider_processor_excption:price is null");
+                    continue;
+                }
+                jdModel.setPrice(price);
+
+                // get sellCount
+                int s = commits.get(i).getElementsByTag("a").size();
+                String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
+                        commits.get(i).getElementsByTag("a").get(0).text();
+                jdModel.setSellCount(commit);
+
+                // get shop
+                if (shops.get(i).getElementsByTag("a").size() > 0) {
+                    jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
+                }
+
+                // get icons
+                Elements tempIcons = icons.get(i).getElementsByTag("i");
+                StringBuilder builder = new StringBuilder();
+                for (Element tempIcon : tempIcons) {
+                    builder.append(tempIcon.text()).append(" ");
+                }
+                jdModel.setIcon(builder.toString());
+
+                // get keyword
+                String url = page.getUrl().get();
+                jdModel.setKeyword(getKeyword(url));
+
+                // get skuId
+                jdModel.setSkuId(skuIds.get(i));
+
+                modelList.add(jdModel);
             }
-            jdModel.setPrice(price);
-
-            // get sellCount
-            int s = commits.get(i).getElementsByTag("a").size();
-            String commit = (s > 1) ? commits.get(i).getElementsByTag("a").get(1).text() :
-                    commits.get(i).getElementsByTag("a").get(0).text();
-            jdModel.setSellCount(commit);
-
-            // get shop
-            if (shops.get(i).getElementsByTag("a").size() > 0) {
-                jdModel.setShop(shops.get(i).getElementsByTag("a").get(0).text());
-            }
-
-            // get icons
-            Elements tempIcons = icons.get(i).getElementsByTag("i");
-            StringBuilder builder = new StringBuilder();
-            for (Element tempIcon : tempIcons) {
-                builder.append(tempIcon.text()).append(" ");
-            }
-            jdModel.setIcon(builder.toString());
-
-            // get keyword
-            String url = page.getUrl().get();
-            jdModel.setKeyword(getKeyword(url));
-
-            // get skuId
-            jdModel.setSkuId(skuIds.get(i));
-
-            modelList.add(jdModel);
+        } catch (Exception e) {
+            LOGGER.error("================grab product details error:" + e + "====================");
+            modelList = new ArrayList<>();
+            minSize = 0;
         }
+
         page.putField(PageItemKeys.JD_LIST_PAGE.getKey(), modelList);
 
         return minSize;

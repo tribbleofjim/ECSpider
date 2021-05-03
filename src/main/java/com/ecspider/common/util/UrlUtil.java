@@ -86,10 +86,10 @@ public class UrlUtil {
 
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        String url = "https://search.jd.com/Search?keyword=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&wq=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&page=3&s=61&click=0";
+        String url = "https://search.jd.com/Search?keyword=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&wq=%E8%BF%9B%E5%8F%A3%E9%A3%9F%E5%93%81&page=87&s=2551&click=0";
 
         String deUrl = URLDecoder.decode(url, "utf-8");
-        String keyword = getFromUrl(deUrl, "keyword");
+        String keyword = getUrlParams(url).get("page");
         System.out.println(keyword);
     }
 

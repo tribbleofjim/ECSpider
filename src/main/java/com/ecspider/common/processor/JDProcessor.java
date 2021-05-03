@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.selector.JsonPathSelector;
 import us.codecraft.webmagic.selector.Selectable;
@@ -398,8 +399,15 @@ public class JDProcessor implements PageProcessor {
         String url = rawUrl.get();
         Map<String, String> params = UrlUtil.getUrlParams(url);
         assert params != null;
-        int tempPage = Integer.parseInt(params.get("page"));
-        int nextPage = tempPage + 2;
+        String tempPageStr = params.get("page");
+        int nextPage, tempPage;
+        if (StringUtils.isBlank(tempPageStr)) {
+            SpiderAdvance advance;
+            tempPage = (advance = SpiderAdvanceCache.get(keyword)) == null ? 1 : advance.getPageNum() * 2 - 1;
+        } else {
+            tempPage = Integer.parseInt(tempPageStr);
+        }
+        nextPage = tempPage + 2;
         if (nextPage > maxPage) {
             SpiderAdvanceCache.remove(keyword);
             return null;

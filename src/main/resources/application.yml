@@ -27,5 +27,5 @@ webmaple:
     port: 8080
     heartbeat: heartbeat
   worker:
-    port: 8080
+    port: 8081
     package-path: com.ecspider.common

@@ -4,8 +4,8 @@ import com.ecspider.common.enums.PageItemKeys;
 import com.ecspider.common.model.JDComment;
 import com.ecspider.common.model.JDModel;
 import com.ecspider.common.util.UrlUtil;
-import com.ecspider.web.SpiderAdvanceCache;
-import com.ecspider.web.model.SpiderAdvance;
+//import com.ecspider.web.SpiderAdvanceCache;
+//import com.ecspider.web.model.SpiderAdvance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -13,6 +13,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webmaple.common.model.SpiderAdvance;
+import org.webmaple.worker.SpiderAdvanceCache;
 import org.webmaple.worker.annotation.MapleProcessor;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -413,7 +415,7 @@ public class JDProcessor implements PageProcessor {
         SpiderAdvance advance;
         if ((advance = SpiderAdvanceCache.get(keyword)) == null) {
             advance = new SpiderAdvance();
-            advance.setKeyword(keyword);
+            advance.setUuid(keyword);
         }
         advance.setPageNum(pageNum);
         advance.setTemp((tempPage + 1) / 2);

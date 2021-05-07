@@ -1,0 +1,28 @@
+spring:
+  data:
+    mongodb:
+      host: 101.37.89.200
+      port: 27017
+      database: data
+      username: user
+      password: mydata
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 10000
+    password: Pass*4
+    jedis:
+      pool:
+        max-idle: 50
+        max-wait: 5000
+props:
+  driver:
+    path: /usr/local/chromedriver
+webmaple:
+  admin:
+    host: 101.33.118.66
+    port: 8080
+    heartbeat: heartbeat
+  worker:
+    port: 8080
+    package-path: com.ecspider.common

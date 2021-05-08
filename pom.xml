@@ -84,13 +84,13 @@
             <version>3.141.59</version>
         </dependency>
 
-        <!-- ===================== thymeleaf =================== -->
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-            <version>2.3.7.RELEASE</version>
-        </dependency>
+<!--        &lt;!&ndash; ===================== thymeleaf =================== &ndash;&gt;-->
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-thymeleaf</artifactId>-->
+<!--            <version>2.3.7.RELEASE</version>-->
+<!--        </dependency>-->
 
         <!-- ===================== quartz =================== -->
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-quartz -->

@@ -5,7 +5,7 @@ import com.ecspider.common.downloader.SeleniumDownloader;
 import com.ecspider.common.pipeline.JDPipeline;
 import com.ecspider.common.processor.JDProcessor;
 import com.ecspider.common.util.UrlUtil;
-import com.ecspider.web.SpiderExecutorPool;
+//import com.ecspider.web.SpiderExecutorPool;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class JDSpiderTest {
                 ,new Proxy("61.153.251.150",22222)));
 
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=7&s=176&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=茗茶&suggest=1.def.0.base&wq=茗茶&page=21&s=596&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(new ConsolePipeline())
@@ -104,23 +104,23 @@ public class JDSpiderTest {
         System.out.println(productClass);
     }
 
-    @Test
-    public void executorTest() {
-        ExecutorService spiderPool = SpiderExecutorPool.getSpiderPool();
-        spiderPool.execute(() -> {
-            int i = 0;
-            Thread temp = Thread.currentThread();
-            while(!temp.isInterrupted()) {
-                System.out.println(i);
-                i++;
-                try {
-                    Thread.sleep(1000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    @Test
+//    public void executorTest() {
+//        ExecutorService spiderPool = SpiderExecutorPool.getSpiderPool();
+//        spiderPool.execute(() -> {
+//            int i = 0;
+//            Thread temp = Thread.currentThread();
+//            while(!temp.isInterrupted()) {
+//                System.out.println(i);
+//                i++;
+//                try {
+//                    Thread.sleep(1000L);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     @Test
     public void requestTest() throws IOException {

@@ -1,7 +1,9 @@
+#server:
+#  port: 8081
 spring:
   data:
     mongodb:
-      host: 101.37.89.200
+      host: 127.0.0.1
       port: 27017
       database: data
       username: user
@@ -10,6 +12,7 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 10000
+    block-when-exhausted: true
     password: Pass*4
     jedis:
       pool:
@@ -18,6 +21,7 @@ spring:
 props:
   driver:
     path: /usr/local/chromedriver
+    # path: /Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver
 webmaple:
   admin:
     host: 101.33.118.66

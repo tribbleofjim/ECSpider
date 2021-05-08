@@ -419,6 +419,7 @@ public class JDProcessor implements PageProcessor {
         }
         advance.setPageNum(pageNum);
         advance.setTemp((tempPage + 1) / 2);
+        LOGGER.info("put_spider_advance:{}", keyword);
         SpiderAdvanceCache.put(keyword, advance);
     }
 

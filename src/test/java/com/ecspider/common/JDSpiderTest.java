@@ -47,13 +47,13 @@ public class JDSpiderTest {
 
     @Test
     public void jdProcessTest() {
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(
-                new Proxy("47.97.167.200",3128)
-                ,new Proxy("61.153.251.150",22222)));
+//        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+//        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(
+//                new Proxy("47.97.167.200",3128)
+//                ,new Proxy("61.153.251.150",22222)));
 
         Spider.create(new JDProcessor())
-                .addUrl("https://search.jd.com/Search?keyword=手机&suggest=1.def.0.base&wq=手机&page=7&s=176&click=0")
+                .addUrl("https://search.jd.com/Search?keyword=%E5%81%A5%E8%BA%AB&wq=%E5%81%A5%E8%BA%AB&page=3&s=56&click=0")
                 .setDownloader(new SeleniumDownloader())
                 .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(new ConsolePipeline())

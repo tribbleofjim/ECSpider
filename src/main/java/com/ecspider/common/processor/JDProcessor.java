@@ -362,27 +362,33 @@ public class JDProcessor implements PageProcessor {
      * @return 总共的页数
      */
     private int getPageNum(Page page, String keyword) {
-        SpiderAdvance advance;
-        if (keyword != null && (advance = SpiderAdvanceCache.get(keyword)) != null) {
-            if (advance.getPageNum() > 0) {
-                return advance.getPageNum();
+        try {
+            SpiderAdvance advance;
+            if (keyword != null && (advance = SpiderAdvanceCache.get(keyword)) != null) {
+                if (advance.getPageNum() > 0) {
+                    return advance.getPageNum();
+                }
             }
-        }
 
-        Document document = page.getHtml().getDocument();
-        Element bottom = document.getElementById("J_bottomPage");
-        if (bottom == null) {
-            return DEFAULT_PAGE_NUM;
-        }
+            Document document = page.getHtml().getDocument();
+            Element bottom = document.getElementById("J_bottomPage");
+            if (bottom == null) {
+                return DEFAULT_PAGE_NUM;
+            }
 
-        Elements skip = bottom.getElementsByClass("p-skip");
-        if (skip == null || skip.size() == 0) {
-            return DEFAULT_PAGE_NUM;
-        }
+            Elements skip = bottom.getElementsByClass("p-skip");
+            if (skip == null || skip.size() == 0) {
+                return DEFAULT_PAGE_NUM;
+            }
 
-        Element em = skip.get(0).getElementsByTag("em").get(0);
-        String pageNumStr = em.getElementsByTag("b").get(0).text();
-        return Integer.parseInt(pageNumStr);
+            Element em = skip.get(0).getElementsByTag("em").get(0);
+            String pageNumStr = em.getElementsByTag("b").get(0).text();
+            return Integer.parseInt(pageNumStr);
+
+        } catch (Exception e) {
+            LOGGER.error("get_page_num_error:", e);
+            return 100;
+        }
     }
 
     /**

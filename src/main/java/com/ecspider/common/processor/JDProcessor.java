@@ -306,6 +306,7 @@ public class JDProcessor implements PageProcessor {
     private void addUrls(Page page, String keyword, int pageNum, int pageSize) {
         List<String> detailUrls = getDetailUrls(page);
         List<String> commentUrls = getCommentUrls(page);
+        LOGGER.info("get_next_page_request:page-{}, keyword-{}, pagenum-{}, pagesize-{}", page, keyword, pageNum, pageSize);
         String nextUrl = getNextPageRequest(page, keyword, pageNum, pageSize);
 
         List<String> urls = new ArrayList<>();
@@ -399,21 +400,40 @@ public class JDProcessor implements PageProcessor {
         int maxPage = pageNum * 2 - 1;
         Selectable rawUrl = page.getUrl();
         String url = rawUrl.get();
-        Map<String, String> params = UrlUtil.getUrlParams(url);
-        assert params != null;
-        int tempPage = Integer.parseInt(params.get("page"));
-        int nextPage = tempPage + 2;
-        if (nextPage > maxPage) {
-            SpiderAdvanceCache.remove(keyword);
-            return null;
+        try {
+            Map<String, String> params = UrlUtil.getUrlParams(url);
+            assert params != null;
+            int tempPage = Integer.parseInt(params.get("page"));
+            int nextPage = tempPage + 2;
+            if (nextPage > maxPage) {
+                SpiderAdvanceCache.remove(keyword);
+                return null;
+            }
+            Integer nextStart = Integer.parseInt(params.get("s")) + pageSize;
+            url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
+            url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+
+            setAdvance(keyword, pageNum, nextPage);
+
+            return url;
+
+        } catch (Exception e) {
+            SpiderAdvance advance = SpiderAdvanceCache.get(keyword);
+            int nextPage, nextStart;
+            if (advance == null) {
+                nextPage = 1;
+                nextStart = 1;
+            } else {
+                nextPage = (advance.getTemp() + 1) * 2 - 1;
+                nextStart = nextPage * 60 - 4;
+            }
+            url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
+            url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
+
+            setAdvance(keyword, pageNum, nextPage);
+
+            return url;
         }
-        Integer nextStart = Integer.parseInt(params.get("s")) + pageSize;
-        url = UrlUtil.addParamToUrl(url, "page", String.valueOf(nextPage));
-        url = UrlUtil.addParamToUrl(url, "s", String.valueOf(nextStart));
-
-        setAdvance(keyword, pageNum, tempPage);
-
-        return url;
     }
 
     private void setAdvance(String keyword, int pageNum, int tempPage) {

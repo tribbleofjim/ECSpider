@@ -17,4 +17,5 @@ spring:
         max-wait: 5000
 props:
   driver:
-    path: /usr/local/chromedriver
+#    path: /usr/local/chromedriver
+    path: /Users/lyifee/Projects/ECSpider/src/main/resources/chromedriver

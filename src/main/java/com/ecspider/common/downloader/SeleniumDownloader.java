@@ -88,6 +88,6 @@ public class SeleniumDownloader implements Downloader {
 
     private int getSleepMillis() {
         Random random = new Random();
-        return random.nextInt(7000) + 3000;
+        return random.nextInt(5000) + 2000;
     }
 }
